@@ -27,10 +27,6 @@ const projectList = ref<Array<Project>>([]);
 onMounted(() => {
   moeApi.projectList().then((list) => {
     projectList.value = list;
-    if (list.length == 0) {
-      moeApi.projectAdd({ name: "Project 1" });
-      moeApi.projectAdd({ name: "Project 2" });
-    }
   });
 });
 </script>

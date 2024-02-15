@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <template v-for="unit in unitList">
-      <v-card :title="unit.title" :text="unit.updatedAt">
+      <v-card :title="unit.title" :text="unit.commit">
         <v-card-actions>
           <v-btn @click="$router.push(`/unit/${unit.id}`)">{{
             t("detailsText")
@@ -30,5 +30,7 @@ const updateView = async (projectId: string | string[]) => {
 };
 
 watch(() => route.params.id, updateView);
-onMounted(async () => await updateView(route.params.id));
+onMounted(async () => {
+  await updateView(route.params.id);
+});
 </script>

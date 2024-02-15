@@ -16,7 +16,9 @@ class MoeApi {
   }
 
   projectAdd(project: { name: string }) {
-    return this.axios.post("/project", project).then((_response) => undefined);
+    return this.axios
+      .post("/project", project)
+      .then((response) => response.data);
   }
 
   unitList(projectId: string): Promise<Array<Unit>> {
@@ -42,7 +44,7 @@ class MoeApi {
         title,
         sourceList,
       })
-      .then((_response) => undefined);
+      .then((response) => response.data);
   }
 
   commitList(unitId: string): Promise<Array<Commit>> {
@@ -67,7 +69,7 @@ class MoeApi {
         unit: unitId,
         recordList,
       })
-      .then((_response) => undefined);
+      .then((response) => response.data);
   }
 }
 

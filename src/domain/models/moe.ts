@@ -10,7 +10,7 @@ class Project {
 class Unit {
   readonly id?: string;
   readonly title: string;
-  readonly updatedAt?: string;
+  readonly commit?: string;
 
   constructor(title: string) {
     this.title = title;
