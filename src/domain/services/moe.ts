@@ -31,7 +31,7 @@ class MoeApi {
 
   unitSourceList(unitId: string): Promise<Array<Source>> {
     return this.axios
-      .get("/unit", {
+      .get("/unit/source", {
         params: { id: unitId },
       })
       .then((response) => response.data);
@@ -57,7 +57,7 @@ class MoeApi {
 
   commitRecordList(commitId: string): Promise<Array<TextRecord>> {
     return this.axios
-      .get("/commit", {
+      .get("/commit/record", {
         params: { id: commitId },
       })
       .then((response) => response.data);
