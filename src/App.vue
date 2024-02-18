@@ -12,6 +12,7 @@ import { TextRecord } from "./domain/models/moe";
 
 moeApi.projectList().then((projectList) => {
   if (projectList.length == 0) {
+    moeApi.signIn("admin", "password");
     moeApi.projectAdd({ name: "诗词示例项目" }).then((projectId) => {
       moeApi
         .unitAdd(projectId, "人の世　夏目漱石", [
@@ -71,7 +72,7 @@ moeApi.projectList().then((projectList) => {
                   let hasCommit = false;
                   unitList.forEach((unit) => {
                     if (unit.id == unitId) {
-                      console.assert(unit.commit == commitId);
+                      console.assert(unit.commitId == commitId);
                       hasCommit = true;
                     }
                   });

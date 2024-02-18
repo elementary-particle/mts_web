@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <template v-for="unit in unitList">
-      <v-card :title="unit.title" :text="unit.commit">
+      <v-card :title="unit.title" :text="unit.commitId">
         <v-card-actions>
           <v-btn @click="$router.push(`/unit/${unit.id}`)">{{
             t("detailsText")
