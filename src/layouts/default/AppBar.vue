@@ -62,6 +62,17 @@
       }
     },
     methods: {
+    },
+    mounted() {
+      var lang = navigator.language.substring(0, 2);
+      if (lang == "zh")
+      {
+        this.$i18n.locale = "zhHans";
+      }
+      else if (lang == "en")
+      {
+        this.$i18n.locale = "en";
+      }
     }
   }
 </script>

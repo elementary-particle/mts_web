@@ -1,22 +1,24 @@
 <template>
-  <v-container class="fill-height" fluid>
-    <div class="bg"></div>
-    <v-container class="bg-content" fluid>
-      <v-row>
-        <v-col align-self="center" class="text-center">
-          <h1 class="mb-5 banner-heading"> Moe Translation System </h1>
-          <h4 class="text-h4 font-weight-light banner-subheading mb-5"> 萌译在线翻译平台 </h4>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col align-self="center" class="text-center">
-          <v-btn size="x-large" rounded="xl" color="primary" class="banner-button" variant="outlined" @click="account.showLogin()">{{ t('login') }}</v-btn>
-          <v-btn size="x-large" rounded="xl" color="theme" class="banner-button" variant="outlined" @click="account.showRegister()">{{ t('register') }}</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
+  <v-parallax src="../assets/bg.webp" class="parallax"></v-parallax>
+  <v-container class="banner" fluid>
+    <v-row>
+      <v-col align-self="center" class="text-center">
+        <h1 class="mb-5 banner-heading"> Moe Translation System </h1>
+        <h4 class="text-h4 font-weight-light banner-subheading mb-5"> 萌译在线翻译平台 </h4>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col align-self="center" class="text-center">
+        <v-btn size="x-large" rounded="xl" color="primary" class="banner-button" variant="outlined" @click="account.showLogin()">{{ t('login') }}</v-btn>
+        <v-btn size="x-large" rounded="xl" color="theme" class="banner-button" variant="outlined" @click="account.showRegister()">{{ t('register') }}</v-btn>
+      </v-col>
+    </v-row>
+  </v-container>
+  <v-container fluid>
     <v-row>
       <v-col cols="6">
+        <h2 class="project-in-list font-weight-light">Project List</h2>
+        <v-divider class="project-in-list" />
         <v-window v-model="projectPage" show-arrows="hover">
           <v-window-item v-for="project in projectList" :key="project.id">
             <v-card hover class="project-in-list" color="secondary" variant="tonal">
@@ -34,6 +36,10 @@
             
           </v-window-item>
         </v-window>
+      </v-col>
+      <v-col cols="6">
+        <h2 class="project-in-list font-weight-light">Recent Commits</h2>
+        <v-divider class="project-in-list" />
       </v-col>
     </v-row>
   </v-container>
@@ -78,13 +84,15 @@
 
 <style>
   .parallax {
-    max-height: calc(100% - 64px);
+    height: 500px;
+    z-index: 0;
+    mask: linear-gradient(0deg, transparent, #000000);
     overflow: hidden;
   }
 
   .bg {
     background: url(../assets/bg.webp) no-repeat 50% 50%;
-    background-size: cover;
+    background-size: 100%;
     position: absolute;
     top: 0;
     left: 0;
@@ -95,9 +103,9 @@
     mask: linear-gradient(0deg, transparent, #000000);
   }
 
-  .bg-content {
+  .banner {
     position: absolute;
-    top: 128px;
+    top: 150px;
     left: 0;
     margin-bottom: 5%;
     z-index: 1;

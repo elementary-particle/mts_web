@@ -14,7 +14,7 @@
       </v-col>
       <v-col>
         <v-row align="center" align-self="center" justify="space-around" style="text-align: end;">
-          <v-col><v-btn variant="outlined">Join this project</v-btn></v-col>
+          <v-col><v-btn variant="outlined" v-if="account.isLoggedIn">Join this project</v-btn></v-col>
           <v-col><v-btn variant="outlined">More Info</v-btn></v-col>
         </v-row>
       </v-col>
@@ -23,6 +23,7 @@
     <v-tabs v-model="tab" color="deep-purple-accent-4" align-tabs="center" grow>
       <v-tab value="1">Info</v-tab>
       <v-tab value="2">Units</v-tab>
+      <v-tab value="3">Contributors</v-tab>
     </v-tabs>
 
     <v-divider></v-divider>
@@ -70,7 +71,6 @@
             </v-row>
           </v-col>
         </v-row>
-        
       </v-window-item>
       <v-window-item value="2">
         <v-data-iterator :items="unitList" :page="unitPage" :items-per-page="2">
@@ -98,6 +98,9 @@
           </template>
         </v-data-iterator>
       </v-window-item>
+      <v-window-item value="3">
+        Contributors
+      </v-window-item>
     </v-window>
 
     
@@ -120,7 +123,7 @@
   import { Unit , Project } from "@/domain/models/moe";
   import moeApi from "@/domain/services/moe";
 
-  import { overlay } from "@/layouts/default/View.vue";
+  import { overlay , account } from "@/layouts/default/View.vue";
 
   const route = useRoute();
   const { t } = useI18n();
@@ -148,7 +151,8 @@
     data() {
       return {
         unitPage: 1,
-        tab: 1
+        tab: 0,
+        account: account
       }
     },
   }
