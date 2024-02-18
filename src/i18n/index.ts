@@ -1,8 +1,26 @@
 export default {
   en: {
+    mts: "Moe Translation System",
     detailsText: "Details",
+    login: "Sign In",
+    register: "Register",
+    username: "Username",
+    password: "Password",
+    repeatPassword: "Repeat Password",
+    project: "Project",
+    haveAccountText: "Already have an account?",
+    dontHaveAccountText: "Don't have an account?",
   },
   zhHans: {
+    mts: "萌译在线翻译平台",
     detailsText: "详细",
+    login: "登录",
+    register: "注册",
+    username: "用户名",
+    password: "密码",
+    repeatPassword: "重复密码",
+    project: "项目",
+    haveAccountText: "已经有账号了?",
+    dontHaveAccountText: "没有账号?",
   },
 };

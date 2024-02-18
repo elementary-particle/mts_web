@@ -1,5 +1,5 @@
 <template>
-  <project-list />
+  <home />
 </template>
 
 <script lang="ts" setup></script>

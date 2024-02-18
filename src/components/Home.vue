@@ -1,0 +1,129 @@
+<template>
+  <v-container class="fill-height" fluid>
+    <div class="bg"></div>
+    <v-container class="bg-content" fluid>
+      <v-row>
+        <v-col align-self="center" class="text-center">
+          <h1 class="mb-5 banner-heading"> Moe Translation System </h1>
+          <h4 class="text-h4 font-weight-light banner-subheading mb-5"> 萌译在线翻译平台 </h4>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col align-self="center" class="text-center">
+          <v-btn size="x-large" rounded="xl" color="primary" class="banner-button" variant="outlined" @click="account.showLogin()">{{ t('login') }}</v-btn>
+          <v-btn size="x-large" rounded="xl" color="theme" class="banner-button" variant="outlined" @click="account.showRegister()">{{ t('register') }}</v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
+    <v-row>
+      <v-col cols="6">
+        <v-window v-model="projectPage" show-arrows="hover">
+          <v-window-item v-for="project in projectList" :key="project.id">
+            <v-card hover class="project-in-list" color="secondary" variant="tonal">
+              <v-card-item>
+                <v-card-title>{{ project.name }}</v-card-title>
+                <v-card-subtitle>{{ project.id }}</v-card-subtitle>
+              </v-card-item>
+              <v-card-text>
+                Sample Text in Project
+              </v-card-text>
+              <v-card-actions>
+                <v-btn @click="$router.push(`/project/${project.id}`)" variant="outlined">{{ t("detailsText") }}</v-btn>
+              </v-card-actions>
+            </v-card>
+            
+          </v-window-item>
+        </v-window>
+      </v-col>
+    </v-row>
+  </v-container>
+</template>
+
+<script setup lang="ts">
+  import { ref } from "vue";
+  import { onMounted } from "vue";
+  import { useI18n } from "vue-i18n";
+
+  import { Project } from "@/domain/models/moe";
+  import moeApi from "@/domain/services/moe";
+
+  import { overlay } from "@/layouts/default/View.vue";
+  import { account } from "@/layouts/default/View.vue";
+
+  const { t } = useI18n();
+
+  const projectList = ref<Array<Project>>([]);
+
+  onMounted(() => {
+    overlay.callUp();
+    moeApi.projectList().then((list) => {
+      projectList.value = list;
+    }).finally(() => {
+      overlay.callDown();
+    });
+  });
+</script>
+
+<script lang="ts">
+  export default {
+    name: 'Home',
+    data() {
+      return {
+        projectPage: 0,
+        account: account
+      }
+    },
+  }
+</script>
+
+<style>
+  .parallax {
+    max-height: calc(100% - 64px);
+    overflow: hidden;
+  }
+
+  .bg {
+    background: url(../assets/bg.webp) no-repeat 50% 50%;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    overflow: hidden;
+    z-index: 0;
+    mask: linear-gradient(0deg, transparent, #000000);
+  }
+
+  .bg-content {
+    position: absolute;
+    top: 128px;
+    left: 0;
+    margin-bottom: 5%;
+    z-index: 1;
+  }
+
+  .banner-heading {
+    font-size: 72px;
+    font-weight: 300;
+  }
+
+  .banner-subheading {
+    font-size: 36px;
+  }
+
+  .banner-button {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .project-in-list {
+    margin-left: 96px;
+    margin-right: 96px;
+    margin-bottom: 2%;
+  }
+
+  ::-webkit-scrollbar {
+    display: none; /* Chrome Safari */
+  }
+</style>
