@@ -126,7 +126,7 @@
                     <v-btn
                       @click="$router.push(`/unit/${item.raw.id}`)"
                       variant="outlined"
-                      >{{ t("detailsText") }}</v-btn
+                      >{{ t("details") }}</v-btn
                     >
                   </v-card-actions>
                 </v-card>
