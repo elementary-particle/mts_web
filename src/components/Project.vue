@@ -168,7 +168,16 @@ import moeApi from "@/domain/services/moe";
 import { useAppStore } from "@/store/app";
 
 const route = useRoute();
-const { t } = useI18n();
+const { t } = useI18n({
+  messages: {
+    en: {
+      details: "Details",
+    },
+    zhHans: {
+      details: "详细",
+    },
+  },
+});
 const app = useAppStore();
 
 const project = ref<Project | null>(null);
