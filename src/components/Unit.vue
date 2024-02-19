@@ -6,18 +6,18 @@
       </v-col>
       <v-col cols="6">
         <h1 class="text-h4 mb-4">
-          {{ 'Unit Name' }}
+          {{ "[unit.name]" }}
         </h1>
         <h4 class="subheading">
-          {{ 'Unit Id' }}
+          {{ "[unit.id]" }}
         </h4>
       </v-col>
-      <v-col style="text-align: right;">
+      <v-col style="text-align: right">
         <v-btn variant="outlined">Commit Changes</v-btn>
         <v-btn variant="outlined">More Info</v-btn>
       </v-col>
     </v-row>
-    
+
     <v-divider></v-divider>
 
     <v-row>
@@ -35,63 +35,59 @@
               <tr v-for="source in unitSourceList" :key="source.sq">
                 <td>{{ source.sq }}</td>
                 <td>{{ source.content }}</td>
-                <td><v-text-field variant="plain" :model-value="textRecordList.find(x => x.sq == source.sq)?.content ?? ''"></v-text-field></td>
+                <td>
+                  <v-text-field
+                    variant="plain"
+                    :model-value="
+                      textRecordList.find((x) => x.sq == source.sq)?.content ??
+                      ''
+                    "
+                  ></v-text-field>
+                </td>
               </tr>
             </tbody>
           </v-table>
         </v-card>
       </v-col>
     </v-row>
-
-    <!-- <template v-for="commit in commitList">
-      <v-card :title="commit.id" :text="commit.createdAt"></v-card>
-    </template>
-
-    <template v-for="source in unitSourceList">
-      <v-card :title="source.sq" :text="source.meta"></v-card>
-    </template> -->
   </v-container>
 
   <div class="toolbar">
     <v-row>
-      <v-col><v-btn icon="mdi-arrow-left" size="large" @click="$router.go(-1)"></v-btn></v-col>
-      <v-col><v-btn icon="mdi-home" size="large" @click="$router.push('/')"></v-btn></v-col>
+      <v-col
+        ><v-btn
+          icon="mdi-arrow-left"
+          size="large"
+          @click="$router.go(-1)"
+        ></v-btn
+      ></v-col>
+      <v-col
+        ><v-btn icon="mdi-home" size="large" @click="$router.push('/')"></v-btn
+      ></v-col>
     </v-row>
   </div>
-  
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, onMounted } from "vue";
-  import { useRoute } from "vue-router";
+import { ref, watch, onMounted } from "vue";
+import { useRoute } from "vue-router";
 
-  import moeApi from "@/domain/services/moe";
-  import { Commit , Source , TextRecord } from "@/domain/models/moe";
+import moeApi from "@/domain/services/moe";
+import { Commit, Source, TextRecord } from "@/domain/models/moe";
 
-  const route = useRoute();
+const route = useRoute();
 
-  const commitList = ref<Array<Commit>>([]);
-  const unitSourceList = ref<Array<Source>>([]);
-  const textRecordList = ref<Array<TextRecord>>([]);
+const commitList = ref<Array<Commit>>([]);
+const unitSourceList = ref<Array<Source>>([]);
+const textRecordList = ref<Array<TextRecord>>([]);
 
-  const updateView = async (unitId: string | string[]) => {
-    commitList.value = await moeApi.commitList(unitId as string);
-    unitSourceList.value = await moeApi.unitSourceList(unitId as string);
-    textRecordList.value = await moeApi.commitRecordList(commitList.value[0]?.id) ?? [];
-  };
+const updateView = async (unitId: string | string[]) => {
+  commitList.value = await moeApi.commitList(unitId as string);
+  unitSourceList.value = await moeApi.unitSourceList(unitId as string);
+  textRecordList.value =
+    (await moeApi.commitRecordList(commitList.value[0]?.id)) ?? [];
+};
 
-  watch(() => route.params.id, updateView);
-  onMounted(async () => await updateView(route.params.id));
-</script>
-
-<script lang="ts">
-
-  export default {
-    name: 'Unit',
-    data() {
-      return {
-      }
-    }
-  }
-
+watch(() => route.params.id, updateView);
+onMounted(async () => await updateView(route.params.id));
 </script>

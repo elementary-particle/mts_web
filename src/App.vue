@@ -78,8 +78,8 @@ moeApi.projectList().then((projectList) => {
                   });
                   console.assert(hasCommit);
                 });
-              })
-            )
+              }),
+            ),
           );
         });
       moeApi.unitAdd(projectId, "堀口大學", [

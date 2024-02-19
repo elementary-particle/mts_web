@@ -47,7 +47,7 @@ class MoeApi {
   unitAdd(
     projectId: string,
     title: string,
-    sourceList: Array<Source>
+    sourceList: Array<Source>,
   ): Promise<string> {
     return this.axios
       .post("/unit", {
