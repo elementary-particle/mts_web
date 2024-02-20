@@ -34,15 +34,18 @@
     </v-row>
 
     <v-divider></v-divider>
-
-    <v-row class="mt-2">
+  </v-container>
+  <v-container fluid>
+    <v-row class="ml-4 mr-4">
       <v-col cols="8">
         <v-table>
           <thead>
-            <tr>
-              <th class="text-left" width="120">Sq</th>
-              <th class="text-left">Source</th>
-            </tr>
+            <v-row no-gutters class="mt-2 mb-2 ml-5 mr-4">
+              <v-col class="text-left" cols="1"><b>Sq</b></v-col>
+              <v-col class="text-left" cols="5"><b>Source</b></v-col>
+              <v-col class="text-left" cols="5"><b>Record</b></v-col>
+              <v-col class="text-right" cols="1"><b>Status</b></v-col>
+            </v-row>
           </thead>
         </v-table>
         <v-expansion-panels v-model="expansion">
@@ -52,12 +55,19 @@
           >
             <v-expansion-panel-title @click="updateSelection(source.sq)">
               <v-row no-gutters>
-                <v-col cols="2" class="d-flex justify-start">
+                <v-col cols="1" class="d-flex justify-start">
                   {{ source.sq }}
                 </v-col>
-                <v-col cols="10" class="text--secondary">
+                <v-col cols="5" class="text--secondary">
                   {{ source.content }}
                 </v-col>
+                <v-col cols="5" class="text--secondary">
+                  {{
+                    localTextRecordList.find((x) => x.sq == source.sq)
+                      ?.content ?? ""
+                  }}
+                </v-col>
+                <v-col cols="1" class="text--secondary"></v-col>
               </v-row>
               <template v-slot:actions>
                 <v-icon
@@ -95,9 +105,11 @@
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <v-row no-gutters>
-                <v-col cols="2"></v-col>
+                <v-col cols="1" class="mt-2"></v-col>
                 <v-col class="mt-2">
-                  {{ textRecordList[source.sq - 1]?.content ?? "" }}
+                  {{
+                    textRecordList.find((x) => x.sq == source.sq)?.content ?? ""
+                  }}
                 </v-col>
               </v-row>
             </v-expansion-panel-text>
@@ -114,12 +126,12 @@
       <v-col cols="4">
         <v-card class="mx-auto">
           <v-card-title class="text-h6 font-weight-regular">
-            Editor
+            {{ t("editor") }}
           </v-card-title>
-          <v-spacer></v-spacer>
+          <v-divider />
           <v-form ref="form" class="pa-4 pt-6">
             <v-text-field
-              variant="filled"
+              variant="outlined"
               color="primary"
               label="Sq"
               :model-value="selection"
@@ -127,7 +139,7 @@
             ></v-text-field>
             <v-textarea
               :model-value="currentSource?.content ?? ''"
-              variant="filled"
+              variant="outlined"
               color="primary"
               label="Source"
               auto-grow
@@ -137,9 +149,12 @@
               v-model="currentRecord"
               auto-grow
               :readonly="selection == null"
-              variant="filled"
+              variant="outlined"
               color="primary"
               label="Record"
+              clearable
+              @keyup.enter="saveAndNext()"
+              onkeydown="if (event.keyCode===13) {return false;}"
             ></v-textarea>
           </v-form>
           <v-divider></v-divider>
@@ -149,10 +164,11 @@
               @click="updateSelection(selection + 1)"
               :disabled="selection >= unitSourceList.length"
             >
-              Next
+              {{ t("next") }}
             </v-btn>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" @click="saveAndNext()"> Save & Next </v-btn>
+            <v-btn color="primary" @click="saveAndNext()">
+              {{ t("saveAndNext") }}
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -178,12 +194,28 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
 import { onBeforeRouteLeave, useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 
 import moeApi from "@/domain/services/moe";
 import { Commit, Source, TextRecord } from "@/domain/models/moe";
 import { useAppStore } from "@/store/app";
+import { onUnmounted } from "vue";
 
 const route = useRoute();
+const { t } = useI18n({
+  messages: {
+    en: {
+      editor: "Editor",
+      next: "Next",
+      saveAndNext: "Save & Next",
+    },
+    zhHans: {
+      editor: "编辑器",
+      next: "下一项",
+      saveAndNext: "保存并下一项",
+    },
+  },
+});
 const app = useAppStore();
 
 const commitList = ref<Array<Commit>>([]);
@@ -246,6 +278,7 @@ const updateSelection = function (id: number) {
 };
 
 const saveAndNext = function () {
+  if (selection.value == null) return;
   let target = localTextRecordList.value.find((x) => x.sq == selection.value);
 
   if (target) {
@@ -277,6 +310,9 @@ watch(() => page.value, updateTable);
 onMounted(async () => await updateView(route.params.id));
 onMounted(() =>
   window.addEventListener("beforeunload", beforeUnloadHandler, false),
+);
+onUnmounted(() =>
+  window.removeEventListener("beforeunload", beforeUnloadHandler, false),
 );
 onBeforeRouteLeave((to, from, next) => {
   if (isEdited.value) {

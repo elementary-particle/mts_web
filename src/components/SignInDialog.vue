@@ -23,8 +23,8 @@
             clearable
             :label="t('passField')"
             :type="reviewPassword ? 'text' : 'password'"
-            @click:append="reviewPassword = !reviewPassword"
-            :append-icon="reviewPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append-inner="reviewPassword = !reviewPassword"
+            :append-inner-icon="reviewPassword ? 'mdi-eye' : 'mdi-eye-off'"
             variant="outlined"
           >
           </v-text-field>
