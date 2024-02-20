@@ -79,7 +79,7 @@
                 </v-icon>
                 <v-icon
                   color="teal"
-                  icon="mdi-check"
+                  icon="mdi-check-circle"
                   v-if="
                     localTextRecordList.find((x) => x.sq == source.sq) !=
                       null &&
@@ -123,54 +123,56 @@
           ></v-pagination>
         </div>
       </v-col>
-      <v-col cols="4">
-        <v-card class="mx-auto">
-          <v-card-title class="text-h6 font-weight-regular">
-            {{ t("editor") }}
-          </v-card-title>
-          <v-divider />
-          <v-form ref="form" class="pa-4 pt-6">
-            <v-text-field
-              variant="outlined"
-              color="primary"
-              label="Sq"
-              :model-value="selection"
-              readonly
-            ></v-text-field>
-            <v-textarea
-              :model-value="currentSource?.content ?? ''"
-              variant="outlined"
-              color="primary"
-              label="Source"
-              auto-grow
-              readonly
-            ></v-textarea>
-            <v-textarea
-              v-model="currentRecord"
-              auto-grow
-              :readonly="selection == null"
-              variant="outlined"
-              color="primary"
-              label="Record"
-              clearable
-              @keyup.enter="saveAndNext()"
-              onkeydown="if (event.keyCode===13) {return false;}"
-            ></v-textarea>
-          </v-form>
-          <v-divider></v-divider>
-          <v-card-actions>
-            <v-btn
-              variant="text"
-              @click="updateSelection(selection + 1)"
-              :disabled="selection >= unitSourceList.length"
-            >
-              {{ t("next") }}
-            </v-btn>
-            <v-btn color="primary" @click="saveAndNext()">
-              {{ t("saveAndNext") }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+      <v-col cols="4" id="editor">
+        <Affix :offset="20">
+          <v-card class="mx-auto">
+            <v-card-title class="text-h6 font-weight-regular">
+              {{ t("editor") }}
+            </v-card-title>
+            <v-divider />
+            <v-form ref="form" class="pa-4 pt-6">
+              <v-text-field
+                variant="outlined"
+                color="primary"
+                label="Sq"
+                :model-value="selection"
+                readonly
+              ></v-text-field>
+              <v-textarea
+                :model-value="currentSource?.content ?? ''"
+                variant="outlined"
+                color="primary"
+                label="Source"
+                auto-grow
+                readonly
+              ></v-textarea>
+              <v-textarea
+                v-model="currentRecord"
+                auto-grow
+                :readonly="selection == null"
+                variant="outlined"
+                color="primary"
+                label="Record"
+                clearable
+                @keyup.enter="saveAndNext()"
+                onkeydown="if (event.keyCode===13) {return false;}"
+              ></v-textarea>
+            </v-form>
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-btn
+                variant="text"
+                @click="updateSelection(selection + 1)"
+                :disabled="selection >= unitSourceList.length"
+              >
+                {{ t("next") }}
+              </v-btn>
+              <v-btn color="primary" @click="saveAndNext()">
+                {{ t("saveAndNext") }}
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </Affix>
       </v-col>
     </v-row>
   </v-container>
@@ -200,6 +202,8 @@ import moeApi from "@/domain/services/moe";
 import { Commit, Source, TextRecord } from "@/domain/models/moe";
 import { useAppStore } from "@/store/app";
 import { onUnmounted } from "vue";
+
+import Affix from "./Affix.vue";
 
 const route = useRoute();
 const { t } = useI18n({
