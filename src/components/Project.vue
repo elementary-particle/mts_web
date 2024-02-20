@@ -28,22 +28,22 @@
       </v-col>
     </v-row>
 
-    <v-tabs v-model="tab" color="deep-purple-accent-4" align-tabs="center" grow>
-      <v-tab value="1">Info</v-tab>
-      <v-tab value="2">Units</v-tab>
-      <v-tab value="3">Contributors</v-tab>
+    <v-tabs v-model="tab" color="deep-purple-accent-4" align-tabs="title" grow>
+      <v-tab :value="0">{{ t("info") }}</v-tab>
+      <v-tab :value="1">{{ t("units") }}</v-tab>
+      <v-tab :value="2">{{ t("contributors") }}</v-tab>
     </v-tabs>
 
     <v-divider></v-divider>
 
     <v-window v-model="tab">
       <loading-overlay v-model="loading"></loading-overlay>
-      <v-window-item value="1">
+      <v-window-item :value="0">
         <v-row class="info">
           <v-col cols="6">
             <v-card>
               <v-card-item>
-                <v-card-title>Introduction</v-card-title>
+                <v-card-title>{{ t("introduction") }}</v-card-title>
               </v-card-item>
               <v-card-text>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -64,7 +64,7 @@
             </v-card>
             <v-card>
               <v-card-item>
-                <v-card-title>Requirement</v-card-title>
+                <v-card-title>{{ t("requirement") }}</v-card-title>
               </v-card-item>
               <v-card-text>
                 Sed at imperdiet tellus. Pellentesque vitae lacus sed augue
@@ -79,7 +79,9 @@
           </v-col>
           <v-col>
             <v-row class="">
-              <v-col cols="4"><h5>Translation Progress</h5></v-col>
+              <v-col cols="4" class="text-center"
+                ><h5>{{ t("translationProgress") }}</h5></v-col
+              >
               <v-col>
                 <v-progress-linear
                   model-value="80"
@@ -94,7 +96,9 @@
               </v-col>
             </v-row>
             <v-row class="">
-              <v-col cols="4"><h5>Proofreading Progress</h5></v-col>
+              <v-col cols="4" class="text-center"
+                ><h5>{{ t("proofreadingProgress") }}</h5></v-col
+              >
               <v-col>
                 <v-progress-linear
                   model-value="10"
@@ -111,7 +115,7 @@
           </v-col>
         </v-row>
       </v-window-item>
-      <v-window-item value="2">
+      <v-window-item :value="1">
         <v-data-iterator :items="unitList" :page="unitPage" :items-per-page="2">
           <template v-slot:default="{ items }">
             <v-row class="unit">
@@ -138,7 +142,7 @@
           </template>
         </v-data-iterator>
       </v-window-item>
-      <v-window-item value="3"> Contributors </v-window-item>
+      <v-window-item :value="2"> Contributors </v-window-item>
     </v-window>
   </v-container>
 
@@ -172,9 +176,23 @@ const { t } = useI18n({
   messages: {
     en: {
       details: "Details",
+      info: "Info",
+      units: "Units",
+      contributors: "Contributors",
+      introduction: "Introduction",
+      requirement: "Requirement",
+      translationProgress: "Translation Progress",
+      proofreadingProgress: "Proofreading Progress",
     },
     zhHans: {
       details: "详细",
+      info: "基本信息",
+      units: "单元",
+      contributors: "贡献者",
+      introduction: "介绍",
+      requirement: "要求",
+      translationProgress: "翻译进度",
+      proofreadingProgress: "校对进度",
     },
   },
 });
@@ -184,7 +202,7 @@ const project = ref<Project | null>(null);
 const unitList = ref<Array<Unit>>([]);
 const loading = ref(false);
 
-const tab = ref(0);
+const tab = ref(null);
 const unitPage = ref(1);
 
 const updateView = async (projectId: string | string[]) => {
