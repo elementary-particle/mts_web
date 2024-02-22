@@ -1,3 +1,3 @@
 <template>
-  <unit></unit>
+  <unit :id="$route.params.id"></unit>
 </template>

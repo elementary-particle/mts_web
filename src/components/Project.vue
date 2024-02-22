@@ -170,6 +170,7 @@ import { useI18n } from "vue-i18n";
 import { Unit, Project } from "@/domain/models/moe";
 import moeApi from "@/domain/services/moe";
 import { useAppStore } from "@/store/app";
+import axios from "axios";
 
 const route = useRoute();
 const { t } = useI18n({
@@ -198,6 +199,10 @@ const { t } = useI18n({
 });
 const app = useAppStore();
 
+const props = defineProps<{
+  id: string;
+}>();
+
 const project = ref<Project | null>(null);
 const unitList = ref<Array<Unit>>([]);
 const loading = ref(false);
@@ -205,22 +210,26 @@ const loading = ref(false);
 const tab = ref(null);
 const unitPage = ref(1);
 
-const updateView = async (projectId: string | string[]) => {
-  loading.value = true;
+watch(
+  () => props.id,
+  (id) => {
+    loading.value = true;
 
-  unitList.value = await moeApi.unitList(projectId as string);
-  project.value =
-    (await moeApi.projectList()).find((x) => x.id == projectId) ?? null;
-
-  setTimeout(() => {
-    loading.value = false;
-  }, 500);
-};
-
-watch(() => route.params.id, updateView);
-onMounted(async () => {
-  await updateView(route.params.id);
-});
+    axios
+      .all([
+        moeApi.projectById(id).then((data) => {
+          project.value = data;
+        }),
+        moeApi.unitList(id).then((data) => {
+          unitList.value = data;
+        }),
+      ])
+      .then(() => {
+        loading.value = false;
+      });
+  },
+  { immediate: true },
+);
 </script>
 
 <style>

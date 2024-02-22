@@ -12,36 +12,46 @@ class MoeApi {
     });
   }
 
-  signIn(name: string, pass: string) {
+  signIn(name: string, pass: string): Promise<string> {
     return this.axios
-      .post("/auth/login", { name, pass })
-      .then((response) => response.data);
+      .post("/auth/signin", { name, pass })
+      .then(({ data }) => data);
   }
 
-  projectList(): Promise<Array<Project>> {
-    return this.axios.get("/project").then((response) => response.data);
+  projectList(): Promise<Project[]> {
+    return this.axios.get("/project").then(({ data }) => data);
+  }
+
+  projectById(id: string): Promise<Project> {
+    return this.axios
+      .get("/project/by-id", { params: { id } })
+      .then(({ data }) => data);
   }
 
   projectAdd(project: { name: string }): Promise<string> {
-    return this.axios
-      .post("/project", project)
-      .then((response) => response.data);
+    return this.axios.post("/project", project).then(({ data }) => data);
   }
 
-  unitList(projectId: string): Promise<Array<Unit>> {
+  unitList(projectId: string): Promise<Unit[]> {
     return this.axios
       .get("/unit", {
         params: { projectId },
       })
-      .then((response) => response.data);
+      .then(({ data }) => data);
   }
 
-  unitSourceList(unitId: string): Promise<Array<Source>> {
+  unitById(id: string): Promise<Unit> {
+    return this.axios
+      .get("/unit/by-id", { params: { id } })
+      .then(({ data }) => data);
+  }
+
+  unitSourceList(unitId: string): Promise<Source[]> {
     return this.axios
       .get("/unit/source", {
         params: { id: unitId },
       })
-      .then((response) => response.data);
+      .then(({ data }) => data);
   }
 
   unitAdd(
@@ -55,23 +65,29 @@ class MoeApi {
         title,
         sourceList,
       })
-      .then((response) => response.data);
+      .then(({ data }) => data);
   }
 
-  commitList(unitId: string): Promise<Array<Commit>> {
+  commitList(unitId: string): Promise<Commit[]> {
     return this.axios
       .get("/commit", {
         params: { unitId },
       })
-      .then((response) => response.data);
+      .then(({ data }) => data);
   }
 
-  commitRecordList(commitId: string): Promise<Array<TextRecord>> {
+  commitById(id: string): Promise<Commit> {
+    return this.axios
+      .get("/commit/by-id", { params: { id } })
+      .then(({ data }) => data);
+  }
+
+  commitRecordList(commitId: string): Promise<TextRecord[]> {
     return this.axios
       .get("/commit/record", {
         params: { id: commitId },
       })
-      .then((response) => response.data);
+      .then(({ data }) => data);
   }
 
   commitAdd(unitId: string, recordList: Array<TextRecord>): Promise<string> {
@@ -80,10 +96,10 @@ class MoeApi {
         unitId,
         recordList,
       })
-      .then((response) => response.data);
+      .then(({ data }) => data);
   }
 }
 
-const moeApi = new MoeApi("http://localhost:8000/api");
+const moeApi = new MoeApi(process.env.VITE_API_BASE_URL ?? "/api");
 
 export default moeApi;

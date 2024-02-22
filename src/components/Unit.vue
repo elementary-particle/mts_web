@@ -85,7 +85,7 @@
                       null &&
                     localTextRecordList.find((x) => x.sq == source.sq)
                       ?.content ==
-                      textRecordList.find((x) => x.sq == source.sq)?.content
+                      recordList.find((x) => x.sq == source.sq)?.content
                   "
                 >
                 </v-icon>
@@ -97,7 +97,7 @@
                       null &&
                     localTextRecordList.find((x) => x.sq == source.sq)
                       ?.content !=
-                      textRecordList.find((x) => x.sq == source.sq)?.content
+                      recordList.find((x) => x.sq == source.sq)?.content
                   "
                 >
                 </v-icon>
@@ -107,9 +107,7 @@
               <v-row no-gutters>
                 <v-col cols="1" class="mt-2"></v-col>
                 <v-col class="mt-2">
-                  {{
-                    textRecordList.find((x) => x.sq == source.sq)?.content ?? ""
-                  }}
+                  {{ recordList.find((x) => x.sq == source.sq)?.content ?? "" }}
                 </v-col>
               </v-row>
             </v-expansion-panel-text>
@@ -124,7 +122,7 @@
         </div>
       </v-col>
       <v-col cols="4" id="editor">
-        <Affix :offset="20">
+        <affix :offset="20">
           <v-card class="mx-auto">
             <v-card-title class="text-h6 font-weight-regular">
               {{ t("editor") }}
@@ -163,7 +161,7 @@
               <v-btn
                 variant="text"
                 @click="updateSelection(selection + 1)"
-                :disabled="selection >= unitSourceList.length"
+                :disabled="selection >= sourceList.length"
               >
                 {{ t("next") }}
               </v-btn>
@@ -172,7 +170,7 @@
               </v-btn>
             </v-card-actions>
           </v-card>
-        </Affix>
+        </affix>
       </v-col>
     </v-row>
   </v-container>
@@ -194,16 +192,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { onBeforeRouteLeave, useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 import moeApi from "@/domain/services/moe";
-import { Commit, Source, TextRecord } from "@/domain/models/moe";
+import {
+  Commit,
+  FullRecord,
+  Source,
+  TextRecord,
+  Unit,
+  makeFullCommit,
+} from "@/domain/models/moe";
 import { useAppStore } from "@/store/app";
-import { onUnmounted } from "vue";
-
-import Affix from "./Affix.vue";
+import axios from "axios";
+import { watchEffect } from "vue";
 
 const route = useRoute();
 const { t } = useI18n({
@@ -222,9 +226,15 @@ const { t } = useI18n({
 });
 const app = useAppStore();
 
+const props = defineProps<{
+  id: string;
+}>();
+
+const unit = ref<Unit | null>(null);
+const tranList = ref<Array<FullRecord>>([]);
 const commitList = ref<Array<Commit>>([]);
-const unitSourceList = ref<Array<Source>>([]);
-const textRecordList = ref<Array<TextRecord>>([]);
+const sourceList = ref<Array<Source>>([]);
+const recordList = ref<Array<TextRecord>>([]);
 
 const localTextRecordList = ref<Array<TextRecord>>([]);
 
@@ -240,42 +250,22 @@ const expansion = ref();
 const currentSource = ref<Source>();
 const currentRecord = ref();
 
-const updateView = async (unitId: string | string[]) => {
-  try {
-    commitList.value = await moeApi.commitList(unitId as string);
-    unitSourceList.value = await moeApi.unitSourceList(unitId as string);
-    textRecordList.value =
-      (await moeApi.commitRecordList(commitList.value[0]?.id)) ??
-      new Array<TextRecord>(unitSourceList.value.length);
-  } catch (e) {
-    console.log(e);
-  }
-  localTextRecordList.value = JSON.parse(JSON.stringify(textRecordList.value));
-
-  page.value = 1;
-  maxPage.value = Math.ceil(unitSourceList.value.length / 10);
-  updateTable();
-};
-
-const updateTable = function () {
-  viewUnitSourceList.value = unitSourceList.value.slice(
+watchEffect(() => {
+  viewUnitSourceList.value = sourceList.value.slice(
     (page.value - 1) * 10,
     page.value * 10,
   );
-
   selection.value = viewUnitSourceList.value[expansion.value]?.sq;
-};
+});
 
 const updateSelection = function (id: number) {
-  if (id > unitSourceList.value.length || id <= 0) return;
+  if (id > sourceList.value.length || id <= 0) return;
   page.value = Math.ceil(id / 10);
 
   selection.value = id;
   expansion.value = (id - 1) % 10;
 
-  currentSource.value = unitSourceList.value.find(
-    (x) => x.sq == selection.value,
-  );
+  currentSource.value = sourceList.value.find((x) => x.sq == selection.value);
   currentRecord.value =
     localTextRecordList.value.find((x) => x.sq == selection.value)?.content ??
     "";
@@ -298,20 +288,49 @@ const saveAndNext = function () {
   }
 
   console.log(
-    `${localTextRecordList.value.find((x) => x.sq == selection.value)?.content}, ${textRecordList.value.find((x) => x.sq == selection.value)?.content}`,
+    `${localTextRecordList.value.find((x) => x.sq == selection.value)?.content}, ${recordList.value.find((x) => x.sq == selection.value)?.content}`,
   );
 
   isEdited.value = true;
   updateSelection(selection.value + 1);
 };
 
+const updateView = (unitId: string) => {
+  try {
+    moeApi.commitList(unitId).then((commitList_) => {
+      commitList.value = commitList_;
+    });
+    moeApi.unitSourceList(unitId).then((sourceList_) => {
+      sourceList.value = sourceList_;
+    });
+    moeApi.unitById(unitId).then((unit_) => {
+      unit.value = unit_;
+      if (unit_.commitId) {
+        moeApi.commitRecordList(commitList.value[0]?.id).then((recordList_) => {
+          recordList.value = recordList_;
+          localTextRecordList.value = [];
+          recordList.value.forEach((record) => {
+            localTextRecordList.value.push(Object.assign({}, record));
+          });
+        });
+      } else {
+        recordList.value = new Array<TextRecord>(sourceList.value.length);
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
+
+  page.value = 1;
+  maxPage.value = Math.ceil(sourceList.value.length / 10);
+};
+
 const beforeUnloadHandler = function (e: any) {
   if (isEdited.value) e.returnValue = "Exit?";
 };
 
-watch(() => route.params.id, updateView);
-watch(() => page.value, updateTable);
-onMounted(async () => await updateView(route.params.id));
+watch(() => props.id, updateView, { immediate: true });
+
 onMounted(() =>
   window.addEventListener("beforeunload", beforeUnloadHandler, false),
 );
@@ -327,13 +346,9 @@ onBeforeRouteLeave((to, from, next) => {
 });
 </script>
 
-<style>
+<style scoped>
 .intro {
   padding-top: 3%;
   padding-bottom: 2%;
-}
-
-.info {
-  padding-top: 48px;
 }
 </style>
