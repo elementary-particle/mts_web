@@ -12,6 +12,18 @@
     <default-bar />
 
     <default-view />
+
+    <v-snackbar
+      v-model="app.snackBarOpened"
+      :color="app.snackBarType"
+      :timeout="app.snackBarTimeout"
+    >
+      <v-alert
+        :type="app.snackBarType"
+        :title="app.snackBarTitle"
+        :text="app.snackBarContent"
+      ></v-alert>
+    </v-snackbar>
   </v-app>
 </template>
 
