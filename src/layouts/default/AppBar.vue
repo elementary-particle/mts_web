@@ -23,7 +23,10 @@
                 locale,
               })
             "
-            @click="$i18n.locale = locale"
+            @click="
+              $i18n.locale = locale;
+              toggleLang(locale);
+            "
             :active="$i18n.locale == locale"
             density="compact"
           ></v-list-item>
@@ -64,10 +67,12 @@ const { t, locale, availableLocales } = useI18n({
     en: {
       mts: "Moe Translation System",
       homePage: "Home",
+      lang: "English",
     },
     zhHans: {
       mts: "萌译站",
       homePage: "主页",
+      lang: "简体中文",
     },
   },
 });
@@ -77,19 +82,20 @@ const app = useAppStore();
 const drawer = ref(false);
 
 const toggleTheme = () => {
-  theme.global.name.value = theme.global.current.value.dark ? "light" : "dark";
+  localStorage.theme = theme.global.current.value.dark ? "light" : "dark";
+  theme.global.name.value = localStorage.theme;
+};
+
+const toggleLang = (lang: string) => {
+  localStorage.lang = lang;
 };
 
 onMounted(async () => {
-  theme.global.name.value = matchMedia("(prefers-color-scheme:dark)").matches
-    ? "dark"
-    : "light";
-
-  const lang = navigator.language;
-  if (lang == "zh") {
-    locale.value = "zhHans";
-  } else if (lang == "en") {
-    locale.value = "en";
-  }
+  localStorage.theme = localStorage.theme
+    ? localStorage.theme
+    : matchMedia("(prefers-color-scheme:dark)").matches
+      ? "dark"
+      : "light";
+  theme.global.name.value = localStorage.theme;
 });
 </script>

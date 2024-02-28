@@ -116,7 +116,12 @@
         </v-row>
       </v-window-item>
       <v-window-item :value="1">
-        <v-data-iterator :items="unitList" :page="unitPage" :items-per-page="2">
+        <v-data-iterator
+          :items="unitList"
+          :page="unitPage"
+          :items-per-page="4"
+          class="mx-4"
+        >
           <template v-slot:default="{ items }">
             <v-row class="unit">
               <v-col cols="6" v-for="item in items" :key="item.raw.id">
