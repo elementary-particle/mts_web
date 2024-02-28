@@ -37,16 +37,16 @@ class TextRecord {
   ) {}
 }
 
-class FullRecord {
+class TextPair {
   constructor(
     readonly sq: number,
     readonly meta: string,
     readonly source: string,
-    readonly target: string,
+    readonly record: string,
   ) {}
 }
 
-const makeFullCommit = (sourceList: Source[], recordList?: TextRecord[]) => {
+const makeTextPair = (sourceList: Source[], recordList?: TextRecord[]) => {
   const map = new Map<
     number,
     {
@@ -68,7 +68,17 @@ const makeFullCommit = (sourceList: Source[], recordList?: TextRecord[]) => {
     entry.target = content;
     map.set(sq, entry);
   });
+
+  const textPairList: TextPair[] = [];
+
+  map.forEach(({ meta, source, target }, sq) => {
+    if (meta && source) {
+      textPairList.push(new TextPair(sq, meta, source, target ?? ""));
+    }
+  });
+
+  return textPairList;
 };
 
-export { FullRecord, Project, Unit, Source, Commit, TextRecord };
-export { makeFullCommit };
+export { TextPair, Project, Unit, Source, Commit, TextRecord };
+export { makeTextPair };

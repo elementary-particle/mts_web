@@ -145,26 +145,10 @@
       <v-window-item :value="2"> Contributors </v-window-item>
     </v-window>
   </v-container>
-
-  <div class="toolbar">
-    <v-row>
-      <v-col
-        ><v-btn
-          icon="mdi-arrow-left"
-          size="large"
-          @click="$router.go(-1)"
-        ></v-btn
-      ></v-col>
-      <v-col
-        ><v-btn icon="mdi-home" size="large" @click="$router.push('/')"></v-btn
-      ></v-col>
-    </v-row>
-  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Unit, Project } from "@/domain/models/moe";
@@ -172,7 +156,6 @@ import moeApi from "@/domain/services/moe";
 import { useAppStore } from "@/store/app";
 import axios from "axios";
 
-const route = useRoute();
 const { t } = useI18n({
   messages: {
     en: {

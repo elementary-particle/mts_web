@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar flat :elevation="2">
+  <v-app-bar elevate-on-scroll>
     <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
     <v-app-bar-title>{{ t("mts") }}</v-app-bar-title>
 
@@ -16,42 +16,37 @@
       </template>
 
       <v-list nav>
-        <v-list-item
-          title="简体中文"
-          @click="$i18n.locale = 'zhHans'"
-          :active="$i18n.locale == 'zhHans'"
-          density="compact"
-        ></v-list-item>
-        <v-list-item
-          title="English"
-          @click="$i18n.locale = 'en'"
-          :active="$i18n.locale == 'en'"
-          density="compact"
-        ></v-list-item>
-        <v-list-item
-          title="More coming soon..."
-          density="compact"
-          disabled
-        ></v-list-item>
+        <template v-for="locale in availableLocales" :key="locale">
+          <v-list-item
+            :title="
+              t('lang', locale, {
+                locale,
+              })
+            "
+            @click="$i18n.locale = locale"
+            :active="$i18n.locale == locale"
+            density="compact"
+          ></v-list-item>
+        </template>
       </v-list>
     </v-menu>
     <v-btn icon @click="toggleTheme()">
-      <v-icon v-if="theme.global.name.value == 'light'"
-        >mdi-weather-sunny</v-icon
-      >
-      <v-icon v-if="theme.global.name.value == 'dark'"
-        >mdi-weather-night</v-icon
-      >
+      <v-icon v-if="theme.global.name.value == 'light'">
+        mdi-weather-sunny
+      </v-icon>
+      <v-icon v-if="theme.global.name.value == 'dark'">
+        mdi-weather-night
+      </v-icon>
     </v-btn>
   </v-app-bar>
 
   <v-navigation-drawer v-model="drawer" temporary>
     <v-list nav>
       <v-list-item
-        title="Home"
+        :title="t('homePage')"
         prepend-icon="mdi-home"
         @click="$router.push('/')"
-        :active="$route.path.toString() == '/'"
+        :active="$route.path == '/'"
       ></v-list-item>
     </v-list>
   </v-navigation-drawer>
@@ -64,7 +59,18 @@ import { useI18n } from "vue-i18n";
 
 import { useAppStore } from "@/store/app";
 
-const { t, locale } = useI18n();
+const { t, locale, availableLocales } = useI18n({
+  messages: {
+    en: {
+      mts: "Moe Translation System",
+      homePage: "Home",
+    },
+    zhHans: {
+      mts: "萌译站",
+      homePage: "主页",
+    },
+  },
+});
 const theme = useTheme();
 const app = useAppStore();
 

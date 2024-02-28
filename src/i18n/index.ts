@@ -1,11 +1,11 @@
 export default {
   en: {
-    mts: "Moe Translation System",
+    lang: "English",
     signIn: "Sign In",
     signUp: "Sign Up",
   },
   zhHans: {
-    mts: "萌译站",
+    lang: "简体中文",
     signIn: "登录",
     signUp: "注册",
   },
