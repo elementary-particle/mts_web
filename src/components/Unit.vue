@@ -1,6 +1,6 @@
 <template>
   <loading-overlay v-model="loading" />
-  <v-navigation-drawer v-model="unitInfoDrawer" location="right" width="400">
+  <v-navigation-drawer v-model="drawer" location="right" width="400">
     <v-card class="mx-auto pb-2" variant="tonal" color="primary" rounded="0">
       <v-card-text>
         <p class="font-serif text-disabled">
@@ -9,7 +9,6 @@
         <p class="text-h4 text--primary font-serif font-weight-medium mb-4">
           {{ unit?.title ?? "[ unit.title ]" }}
         </p>
-        <p class="font-serif">{{ "Sample Description of Unit" }}</p>
       </v-card-text>
       <v-card-actions>
         <v-btn variant="outlined" color="warning">{{ t("lock") }}</v-btn>
@@ -103,7 +102,7 @@
   </v-navigation-drawer>
 
   <v-sheet class="h-100 d-flex flex-column">
-    <v-toolbar density="compact">
+    <v-toolbar>
       <v-text-field
         hide-details
         prepend-icon="mdi-magnify"
@@ -113,17 +112,17 @@
 
       <v-spacer />
 
-      <v-btn icon>
-        <v-icon>mdi-download</v-icon>
-      </v-btn>
+      <v-file-input
+        density="compact"
+        variant="plain"
+        :label="t('uploadFile')"
+        accept=".xlsx"
+        v-model="uploadFile"
+      ></v-file-input>
 
-      <v-btn icon>
-        <v-icon>mdi-upload</v-icon>
-      </v-btn>
+      <v-btn icon @click="download"><v-icon>mdi-download</v-icon></v-btn>
 
-      <v-btn icon>
-        <v-icon>mdi-page-first</v-icon>
-      </v-btn>
+      <v-btn icon @click="upload"><v-icon>mdi-upload</v-icon></v-btn>
 
       <v-btn icon @click="selectPrev">
         <v-icon>mdi-chevron-left</v-icon>
@@ -133,17 +132,11 @@
         <v-icon>mdi-chevron-right</v-icon>
       </v-btn>
 
-      <v-btn icon>
-        <v-icon>mdi-page-last</v-icon>
-      </v-btn>
-
-      <v-btn icon>
+      <v-btn icon @click="commit" :disabled="!app.userId">
         <v-icon>mdi-cloud-upload</v-icon>
       </v-btn>
 
-      <v-btn icon @click="unitInfoDrawer = !unitInfoDrawer">
-        <v-icon>mdi-cog</v-icon>
-      </v-btn>
+      <v-btn icon @click="drawer = !drawer"> <v-icon>mdi-cog</v-icon> </v-btn>
     </v-toolbar>
 
     <v-container class="fill-height py-0 overflow-hidden d-flex" fluid>
@@ -211,6 +204,7 @@
             color="primary"
             :label="t('source')"
             rows="3"
+            auto-grow
             readonly
             :model-value="selected?.source"
           ></v-textarea>
@@ -221,6 +215,7 @@
             color="primary"
             :label="t('record')"
             rows="6"
+            auto-grow
             counter
             :readonly="!selected"
             :model-value="selected?.target"
@@ -246,21 +241,25 @@ import { useI18n } from "vue-i18n";
 import { useAppStore } from "@/store/app";
 import { useTheme } from "vuetify";
 import { onKeyStroke } from "@vueuse/core";
+import { utils, read, writeFile } from "xlsx";
 
 import moeApi from "@/domain/services/moe";
-import { TextPair, Unit, makeTextPair } from "@/domain/models/moe";
+import { TextPair, TextRecord, Unit, makeTextPair } from "@/domain/models/moe";
 import ListScroll from "./ListScroll.vue";
 
-class PairItem extends TextPair {
+class PairItem {
+  context: string;
   target: string;
   active: boolean;
 
   constructor(
+    readonly sq: number,
+    readonly source: string,
+    record: string,
     public index: number,
-    pair: TextPair,
   ) {
-    super(pair.sq, pair.meta, pair.source, pair.record);
-    this.target = pair.record;
+    this.context = "";
+    this.target = record;
     this.active = false;
   }
 }
@@ -274,10 +273,11 @@ const props = defineProps<{
 
 const unit = ref<Unit | null>(null);
 const pairs = ref<PairItem[]>([]);
+const uploadFile = ref<File[]>([]);
 
 const loading = ref(true);
 const selected = ref<PairItem | null>(null);
-const unitInfoDrawer = ref(false);
+const drawer = ref(false);
 
 const view = ref<any>(null);
 
@@ -296,7 +296,10 @@ watch(
         } else {
           pairList_ = makeTextPair(sourceList);
         }
-        pairs.value = pairList_.map((pair, index) => new PairItem(index, pair));
+        pairs.value = pairList_.map(
+          ({ sq, source, record }, index) =>
+            new PairItem(sq, source, record, index),
+        );
 
         loading.value = false;
       });
@@ -337,6 +340,69 @@ const toggleLang = (lang: string) => {
   localStorage.lang = lang;
 };
 
+const commit = () => {
+  if (unit.value && unit.value.id && pairs.value) {
+    moeApi.commitAdd(
+      unit.value.id,
+      pairs.value.map(({ sq, target }) => new TextRecord(sq, target)),
+    );
+  }
+};
+
+const download = () => {
+  if (unit.value && pairs.value) {
+    const book = utils.book_new();
+    const columnWidths = [6, 20, 50, 50].map((width) => ({ wch: width }));
+
+    const sheet = utils.json_to_sheet(
+      pairs.value.map(({ sq, context, source, target }) => ({
+        sq,
+        context,
+        source,
+        target,
+      })),
+      {
+        header: ["sq", "context", "source", "target"],
+      },
+    );
+    sheet["!cols"] = columnWidths;
+
+    const unitId = unit.value.id!.slice(0, 8);
+
+    utils.book_append_sheet(book, sheet, unitId);
+    writeFile(book, unit.value.title + ".xlsx");
+  }
+};
+
+const upload = () => {
+  if (unit.value && uploadFile.value.length > 0) {
+    const reader = new FileReader();
+    const unitId = unit.value.id!.slice(0, 8);
+    reader.onload = (e) => {
+      if (e.target) {
+        const book = read(e.target.result);
+        if (book.Sheets[unitId]) {
+          pairs.value = utils
+            .sheet_to_json<{
+              sq: number;
+              context: string;
+              source: string;
+              target: string;
+            }>(book.Sheets[unitId], { defval: "" })
+            .map(
+              ({ sq, context, source, target }, index) =>
+                new PairItem(sq, source, target, index),
+            );
+        }
+      }
+    };
+    reader.readAsArrayBuffer(uploadFile.value[0]);
+  }
+};
+
+onKeyStroke(["ArrowUp"], selectPrev);
+onKeyStroke(["ArrowDown"], selectNext);
+
 const { t, locale, availableLocales } = useI18n({
   messages: {
     en: {
@@ -347,6 +413,7 @@ const { t, locale, availableLocales } = useI18n({
       issues: "Issues",
       lock: "Lock",
       submit: "Submit",
+      uploadFile: "Upload File",
       lang: "English",
     },
     zhHans: {
@@ -357,6 +424,7 @@ const { t, locale, availableLocales } = useI18n({
       issues: "问题",
       lock: "锁定",
       submit: "提交",
+      uploadFile: "上传文件",
       lang: "简体中文",
     },
   },
@@ -376,9 +444,6 @@ onMounted(async () => {
     locale.value = localStorage.lang = "en";
   }
 });
-
-onKeyStroke(["ArrowUp"], selectPrev);
-onKeyStroke(["ArrowDown"], selectNext);
 </script>
 
 <style scoped>
