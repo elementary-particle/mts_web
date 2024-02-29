@@ -35,11 +35,11 @@ const createConfig = (env: Record<string, string>) => ({
           },
           {
             name: "Noto Serif JP",
-            styles: "wght@100;300;400;500;600;700;900",
+            styles: "wght@100;300;400;500;700;900",
           },
           {
             name: "Noto Serif SC",
-            styles: "wght@100;300;400;500;600;700;900",
+            styles: "wght@100;300;400;500;700;900",
           },
         ],
       },
