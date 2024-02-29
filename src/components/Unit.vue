@@ -79,8 +79,10 @@
                   })
                 "
                 @click="
-                  $i18n.locale = locale;
-                  toggleLang(locale);
+                  () => {
+                    $i18n.locale = locale;
+                    toggleLang(locale);
+                  }
                 "
                 :active="$i18n.locale == locale"
                 density="compact"
@@ -123,11 +125,11 @@
         <v-icon>mdi-page-first</v-icon>
       </v-btn>
 
-      <v-btn icon>
+      <v-btn icon @click="selectPrev">
         <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
 
-      <v-btn icon>
+      <v-btn icon @click="selectNext">
         <v-icon>mdi-chevron-right</v-icon>
       </v-btn>
 
@@ -147,8 +149,19 @@
     <v-container class="fill-height py-0 overflow-hidden d-flex" fluid>
       <v-row class="fill-height">
         <v-col cols="8" class="fill-height">
-          <v-sheet class="text-view h-100 d-flex flex-column">
-            <v-virtual-scroll ref="view" :items="pairs ?? []" class="py-2">
+          <v-sheet
+            class="text-view h-100 d-flex flex-column"
+            @wheel="
+              (e) => {
+                if (e.deltaY > 0) {
+                  selectNext();
+                } else if (e.deltaY < 0) {
+                  selectPrev();
+                }
+              }
+            "
+          >
+            <list-scroll ref="view" :items="pairs ?? []" class="py-2">
               <template v-slot:default="{ item }">
                 <v-row
                   class="text mx-0 mb-2"
@@ -166,7 +179,7 @@
                   </v-col>
                 </v-row>
               </template>
-            </v-virtual-scroll>
+            </list-scroll>
           </v-sheet>
         </v-col>
         <v-col cols="4" class="pt-4">
@@ -218,15 +231,7 @@
                 }
               }
             "
-            @keydown.enter.prevent="
-              () => {
-                if (selected && selected.index + 1 < pairs.length) {
-                  select(pairs[selected.index + 1]);
-                } else {
-                  select(null);
-                }
-              }
-            "
+            @keydown.enter.prevent="selectNext"
           ></v-textarea>
         </v-col>
       </v-row>
@@ -235,16 +240,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, watchEffect, nextTick } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { VVirtualScroll } from "vuetify/lib/components/index.mjs";
+import { useAppStore } from "@/store/app";
+import { useTheme } from "vuetify";
+import { onKeyStroke } from "@vueuse/core";
 
 import moeApi from "@/domain/services/moe";
 import { TextPair, Unit, makeTextPair } from "@/domain/models/moe";
-import { useAppStore } from "@/store/app";
-
-import { useTheme } from "vuetify";
+import ListScroll from "./ListScroll.vue";
 
 class PairItem extends TextPair {
   target: string;
@@ -274,7 +279,7 @@ const loading = ref(true);
 const selected = ref<PairItem | null>(null);
 const unitInfoDrawer = ref(false);
 
-const view = ref<VVirtualScroll | null>(null);
+const view = ref<any>(null);
 
 watch(
   () => props.id,
@@ -307,6 +312,19 @@ const select = (item: PairItem | null) => {
   selected.value = item;
   if (item) {
     item.active = true;
+    view.value?.makeVisible(item.index);
+  }
+};
+
+const selectPrev = () => {
+  if (selected.value && selected.value.index - 1 >= 0) {
+    select(pairs.value[selected.value.index - 1]);
+  }
+};
+
+const selectNext = () => {
+  if (selected.value && selected.value.index + 1 < pairs.value.length) {
+    select(pairs.value[selected.value.index + 1]);
   }
 };
 
@@ -358,6 +376,9 @@ onMounted(async () => {
     locale.value = localStorage.lang = "en";
   }
 });
+
+onKeyStroke(["ArrowUp"], selectPrev);
+onKeyStroke(["ArrowDown"], selectNext);
 </script>
 
 <style scoped>

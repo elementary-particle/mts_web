@@ -10,6 +10,7 @@ declare module 'vue' {
     Affix: typeof import('./src/components/Affix.vue')['default']
     Editor: typeof import('./src/components/Editor.vue')['default']
     Home: typeof import('./src/components/Home.vue')['default']
+    ListScroll: typeof import('./src/components/ListScroll.vue')['default']
     LoadingOverlay: typeof import('./src/components/LoadingOverlay.vue')['default']
     Project: typeof import('./src/components/Project.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
