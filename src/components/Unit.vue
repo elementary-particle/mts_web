@@ -107,6 +107,9 @@
         hide-details
         prepend-icon="mdi-magnify"
         single-line
+        variant="outlined"
+        rounded="0"
+        density="compact"
         class="ml-4 font-serif"
       ></v-text-field>
 
@@ -114,29 +117,71 @@
 
       <v-file-input
         density="compact"
-        variant="plain"
+        variant="outlined"
         :label="t('uploadFile')"
         accept=".xlsx"
+        class="pt-5 font-serif"
+        rounded="0"
+        show-size
         v-model="uploadFile"
       ></v-file-input>
 
-      <v-btn icon @click="download"><v-icon>mdi-download</v-icon></v-btn>
+      <v-btn
+        icon
+        @click="upload"
+        :disabled="uploadFile.length == 0"
+        :title="'Import Xlsx'"
+        ><v-icon>mdi-upload</v-icon></v-btn
+      >
 
-      <v-btn icon @click="upload"><v-icon>mdi-upload</v-icon></v-btn>
+      <v-btn icon @click="download" :title="'Export Xlsx'"
+        ><v-icon>mdi-download</v-icon></v-btn
+      >
 
-      <v-btn icon @click="selectPrev">
+      <v-btn
+        icon
+        @click="select(pairs[0])"
+        :disabled="!selected || selected?.index == 0"
+        :title="'Turn to first line'"
+      >
+        <v-icon>mdi-page-first</v-icon>
+      </v-btn>
+
+      <v-btn
+        icon
+        @click="selectPrev"
+        :disabled="!selected || selected?.index == 0"
+        :title="'Turn previous'"
+      >
         <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
 
-      <v-btn icon @click="selectNext">
+      <v-btn
+        icon
+        @click="selectNext"
+        :disabled="!selected || selected?.index == pairs.length - 1"
+        :title="'Turn next'"
+      >
         <v-icon>mdi-chevron-right</v-icon>
       </v-btn>
 
-      <v-btn icon @click="commit" :disabled="!app.userId">
+      <v-btn
+        icon
+        @click="select(pairs[pairs.length - 1])"
+        :disabled="!selected || selected?.index == pairs.length - 1"
+        :title="'Turn to last line'"
+      >
+        <v-icon>mdi-page-last</v-icon>
+      </v-btn>
+
+      <v-btn icon @click="commit" :disabled="!app.userId" :title="'Submit'">
         <v-icon>mdi-cloud-upload</v-icon>
       </v-btn>
 
-      <v-btn icon @click="drawer = !drawer"> <v-icon>mdi-cog</v-icon> </v-btn>
+      <v-btn icon @click="drawer = !drawer">
+        <v-icon v-if="!drawer">mdi-cog</v-icon>
+        <v-icon v-if="drawer">mdi-chevron-double-right</v-icon>
+      </v-btn>
     </v-toolbar>
 
     <v-container class="fill-height py-0 overflow-hidden d-flex" fluid>
@@ -157,7 +202,7 @@
             <list-scroll ref="view" :items="pairs ?? []" class="py-2">
               <template v-slot:default="{ item }">
                 <v-row
-                  class="text mx-0 mb-2"
+                  class="text mx-0 mb-3"
                   v-ripple
                   :class="{
                     selected: item.active,
@@ -232,6 +277,14 @@
       </v-row>
     </v-container>
   </v-sheet>
+
+  <v-snackbar v-model="snackbar" :color="snackbarType" timeout="1500">
+    <v-alert
+      :type="snackbarType"
+      :title="snackbarTitle"
+      :text="snackbarContent"
+    ></v-alert>
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
@@ -281,6 +334,23 @@ const drawer = ref(false);
 
 const view = ref<any>(null);
 
+const snackbar = ref(false);
+const snackbarType = ref<"info" | "error" | "success" | "warning">();
+const snackbarTitle = ref("");
+const snackbarContent = ref("");
+
+const callSnackbar = function (
+  title: string,
+  content: string,
+  type: "info" | "error" | "success" | "warning",
+) {
+  snackbarTitle.value = title;
+  snackbarContent.value = content;
+  snackbarType.value = type;
+
+  snackbar.value = true;
+};
+
 watch(
   () => props.id,
   (id) => {
@@ -323,12 +393,14 @@ const selectPrev = () => {
   if (selected.value && selected.value.index - 1 >= 0) {
     select(pairs.value[selected.value.index - 1]);
   }
+  if (!selected.value && pairs.value) select(pairs.value[0]);
 };
 
 const selectNext = () => {
   if (selected.value && selected.value.index + 1 < pairs.value.length) {
     select(pairs.value[selected.value.index + 1]);
   }
+  if (!selected.value && pairs.value) select(pairs.value[0]);
 };
 
 const toggleTheme = () => {
@@ -340,12 +412,18 @@ const toggleLang = (lang: string) => {
   localStorage.lang = lang;
 };
 
-const commit = () => {
+const commit = async () => {
+  loading.value = true;
   if (unit.value && unit.value.id && pairs.value) {
-    moeApi.commitAdd(
-      unit.value.id,
-      pairs.value.map(({ sq, target }) => new TextRecord(sq, target)),
-    );
+    await moeApi
+      .commitAdd(
+        unit.value.id,
+        pairs.value.map(({ sq, target }) => new TextRecord(sq, target)),
+      )
+      .then(() => {
+        callSnackbar("Success", "Successfully submitted", "success");
+        loading.value = false;
+      });
   }
 };
 
@@ -397,6 +475,9 @@ const upload = () => {
       }
     };
     reader.readAsArrayBuffer(uploadFile.value[0]);
+
+    callSnackbar("Success", "Successfully imported the xlsx file", "success");
+    uploadFile.value.length = 0;
   }
 };
 
@@ -439,9 +520,9 @@ onMounted(async () => {
 
   let l: string = localStorage.lang ? localStorage.lang : navigator.language;
   if (l.startsWith("zh")) {
-    locale.value = localStorage.lang = "zhHans";
+    locale.value = "zhHans";
   } else if (l.startsWith("en")) {
-    locale.value = localStorage.lang = "en";
+    locale.value = "en";
   }
 });
 </script>
@@ -458,7 +539,7 @@ onMounted(async () => {
 }
 
 .text:hover .v-col {
-  background-color: rgb(var(--v-theme-surface-light));
+  background-color: rgb(var(--v-theme-surface-light), 0.4);
 }
 
 .selected {

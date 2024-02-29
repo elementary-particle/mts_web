@@ -133,7 +133,7 @@
                   <v-card-text> Sample Text in Unit </v-card-text>
                   <v-card-actions>
                     <v-btn
-                      @click="$router.push(`/unit/${item.raw.id}`)"
+                      @click="enterProjectAttempt(item.raw.id)"
                       variant="outlined"
                       >{{ t("details") }}</v-btn
                     >
@@ -150,11 +150,20 @@
       <v-window-item :value="2"> Contributors </v-window-item>
     </v-window>
   </v-container>
+
+  <v-snackbar v-model="snackbar" :color="snackbarType" timeout="1500">
+    <v-alert
+      :type="snackbarType"
+      :title="snackbarTitle"
+      :text="snackbarContent"
+    ></v-alert>
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import router from "@/router";
 
 import { Unit, Project } from "@/domain/models/moe";
 import moeApi from "@/domain/services/moe";
@@ -197,6 +206,31 @@ const loading = ref(false);
 
 const tab = ref(null);
 const unitPage = ref(1);
+
+const snackbar = ref(false);
+const snackbarType = ref<"info" | "error" | "success" | "warning">();
+const snackbarTitle = ref("");
+const snackbarContent = ref("");
+
+const callSnackbar = function (
+  title: string,
+  content: string,
+  type: "info" | "error" | "success" | "warning",
+) {
+  snackbarTitle.value = title;
+  snackbarContent.value = content;
+  snackbarType.value = type;
+
+  snackbar.value = true;
+};
+
+const enterProjectAttempt = function (unitId: string) {
+  if (!app.userId) {
+    callSnackbar("Error", "Please login first", "error");
+  } else {
+    router.push(`/unit/${unitId}`);
+  }
+};
 
 watch(
   () => props.id,
