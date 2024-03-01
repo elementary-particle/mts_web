@@ -183,7 +183,7 @@ const { t } = useI18n({
       introduction: "介绍",
       requirement: "要求",
       translationProgress: "翻译进度",
-      proofreadingProgress: "校对进度",
+      auditionProgress: "校对进度",
       notLoggedIn: "需要登录才能查看",
     },
   },
