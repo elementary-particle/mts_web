@@ -62,41 +62,8 @@
 
     <v-footer class="footer font-serif">
       <v-row justify="space-around" no-gutters class="my-2">
-        <v-menu location="top">
-          <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props">
-              <v-icon>mdi-translate</v-icon>
-            </v-btn>
-          </template>
-
-          <v-list nav>
-            <template v-for="locale in availableLocales" :key="locale">
-              <v-list-item
-                :title="
-                  t('lang', locale, {
-                    locale,
-                  })
-                "
-                @click="
-                  () => {
-                    $i18n.locale = locale;
-                    toggleLang(locale);
-                  }
-                "
-                :active="$i18n.locale == locale"
-                density="compact"
-              ></v-list-item>
-            </template>
-          </v-list>
-        </v-menu>
-        <v-btn icon @click="toggleTheme()">
-          <v-icon v-if="theme.global.name.value == 'light'">
-            mdi-weather-sunny
-          </v-icon>
-          <v-icon v-if="theme.global.name.value == 'dark'">
-            mdi-weather-night
-          </v-icon>
-        </v-btn>
+        <lang-menu></lang-menu>
+        <theme-button></theme-button>
       </v-row>
     </v-footer>
   </v-navigation-drawer>
@@ -277,14 +244,6 @@
       </v-row>
     </v-container>
   </v-sheet>
-
-  <v-snackbar v-model="snackbar" :color="snackbarType" timeout="1500">
-    <v-alert
-      :type="snackbarType"
-      :title="snackbarTitle"
-      :text="snackbarContent"
-    ></v-alert>
-  </v-snackbar>
 </template>
 
 <script setup lang="ts">
@@ -333,23 +292,6 @@ const selected = ref<PairItem | null>(null);
 const drawer = ref(false);
 
 const view = ref<any>(null);
-
-const snackbar = ref(false);
-const snackbarType = ref<"info" | "error" | "success" | "warning">();
-const snackbarTitle = ref("");
-const snackbarContent = ref("");
-
-const callSnackbar = function (
-  title: string,
-  content: string,
-  type: "info" | "error" | "success" | "warning",
-) {
-  snackbarTitle.value = title;
-  snackbarContent.value = content;
-  snackbarType.value = type;
-
-  snackbar.value = true;
-};
 
 watch(
   () => props.id,
@@ -403,15 +345,6 @@ const selectNext = () => {
   if (!selected.value && pairs.value) select(pairs.value[0]);
 };
 
-const toggleTheme = () => {
-  localStorage.theme = localStorage.theme == "dark" ? "light" : "dark";
-  theme.global.name.value = localStorage.theme;
-};
-
-const toggleLang = (lang: string) => {
-  localStorage.lang = lang;
-};
-
 const commit = async () => {
   loading.value = true;
   if (unit.value && unit.value.id && pairs.value) {
@@ -421,7 +354,7 @@ const commit = async () => {
         pairs.value.map(({ sq, target }) => new TextRecord(sq, target)),
       )
       .then(() => {
-        callSnackbar("Success", "Successfully submitted", "success");
+        app.snackbar(t("submitOk"), { color: "success" });
         loading.value = false;
       });
   }
@@ -476,7 +409,7 @@ const upload = () => {
     };
     reader.readAsArrayBuffer(uploadFile.value[0]);
 
-    callSnackbar("Success", "Successfully imported the xlsx file", "success");
+    app.snackbar(t("uploadOk"), { color: "success" });
     uploadFile.value.length = 0;
   }
 };
@@ -484,7 +417,7 @@ const upload = () => {
 onKeyStroke(["ArrowUp"], selectPrev);
 onKeyStroke(["ArrowDown"], selectNext);
 
-const { t, locale, availableLocales } = useI18n({
+const { t } = useI18n({
   messages: {
     en: {
       sq: "Seq. No.",
@@ -495,7 +428,8 @@ const { t, locale, availableLocales } = useI18n({
       lock: "Lock",
       submit: "Submit",
       uploadFile: "Upload File",
-      lang: "English",
+      uploadOk: "Uploaded file has been imported",
+      sumbitOk: "Changes have been submitted to the server",
     },
     zhHans: {
       sq: "序号",
@@ -506,24 +440,10 @@ const { t, locale, availableLocales } = useI18n({
       lock: "锁定",
       submit: "提交",
       uploadFile: "上传文件",
-      lang: "简体中文",
+      uploadOk: "成功导入上传的文件",
+      submitOk: "修改已上传到服务器",
     },
   },
-});
-
-onMounted(async () => {
-  theme.global.name.value = localStorage.theme
-    ? localStorage.theme
-    : matchMedia("(prefers-color-scheme:dark)").matches
-      ? "dark"
-      : "light";
-
-  let l: string = localStorage.lang ? localStorage.lang : navigator.language;
-  if (l.startsWith("zh")) {
-    locale.value = "zhHans";
-  } else if (l.startsWith("en")) {
-    locale.value = "en";
-  }
 });
 </script>
 

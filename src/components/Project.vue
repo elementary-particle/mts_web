@@ -150,14 +150,6 @@
       <v-window-item :value="2"> Contributors </v-window-item>
     </v-window>
   </v-container>
-
-  <v-snackbar v-model="snackbar" :color="snackbarType" timeout="1500">
-    <v-alert
-      :type="snackbarType"
-      :title="snackbarTitle"
-      :text="snackbarContent"
-    ></v-alert>
-  </v-snackbar>
 </template>
 
 <script setup lang="ts">
@@ -180,7 +172,8 @@ const { t } = useI18n({
       introduction: "Introduction",
       requirement: "Requirement",
       translationProgress: "Translation Progress",
-      proofreadingProgress: "Proofreading Progress",
+      auditionProgress: "Audition Progress",
+      notLoggedIn: "You must be logged in first",
     },
     zhHans: {
       details: "详细",
@@ -191,6 +184,7 @@ const { t } = useI18n({
       requirement: "要求",
       translationProgress: "翻译进度",
       proofreadingProgress: "校对进度",
+      notLoggedIn: "需要登录才能查看",
     },
   },
 });
@@ -207,26 +201,9 @@ const loading = ref(false);
 const tab = ref(null);
 const unitPage = ref(1);
 
-const snackbar = ref(false);
-const snackbarType = ref<"info" | "error" | "success" | "warning">();
-const snackbarTitle = ref("");
-const snackbarContent = ref("");
-
-const callSnackbar = function (
-  title: string,
-  content: string,
-  type: "info" | "error" | "success" | "warning",
-) {
-  snackbarTitle.value = title;
-  snackbarContent.value = content;
-  snackbarType.value = type;
-
-  snackbar.value = true;
-};
-
 const enterProjectAttempt = function (unitId: string) {
   if (!app.userId) {
-    callSnackbar("Error", "Please login first", "error");
+    app.snackbar(t("notLoggedIn"), { color: "error" });
   } else {
     router.push(`/unit/${unitId}`);
   }

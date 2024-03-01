@@ -10,6 +10,8 @@ declare module 'vue' {
     Affix: typeof import('./src/components/Affix.vue')['default']
     Editor: typeof import('./src/components/Editor.vue')['default']
     Home: typeof import('./src/components/Home.vue')['default']
+    LangMenu: typeof import('./src/components/LangMenu.vue')['default']
+    LangSelect: typeof import('./src/components/LangSelect.vue')['default']
     ListScroll: typeof import('./src/components/ListScroll.vue')['default']
     LoadingOverlay: typeof import('./src/components/LoadingOverlay.vue')['default']
     Project: typeof import('./src/components/Project.vue')['default']
@@ -17,7 +19,10 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SignInDialog: typeof import('./src/components/SignInDialog.vue')['default']
     SignUpDialog: typeof import('./src/components/SignUpDialog.vue')['default']
+    SnackbarQueue: typeof import('./src/components/SnackbarQueue.vue')['default']
     TextView: typeof import('./src/components/TextView.vue')['default']
+    ThemeButton: typeof import('./src/components/ThemeButton.vue')['default']
     Unit: typeof import('./src/components/Unit.vue')['default']
+    UserButton: typeof import('./src/components/UserButton.vue')['default']
   }
 }

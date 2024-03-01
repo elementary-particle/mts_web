@@ -6,15 +6,68 @@
 
 // Plugins
 import { registerPlugins } from "@/plugins";
+import pinia from "@/store";
+import vuetify from "@/plugins/vuetify";
+import i18n from "@/plugins/i18n";
+import router from "@/router";
 
 // Components
 import App from "./App.vue";
 
 // Composables
 import { createApp } from "vue";
+import { useLocaleStore } from "@/store/locale";
+import { useThemeStore } from "@/store/theme";
+
+const locale = useLocaleStore(pinia);
+const theme = useThemeStore(pinia);
+
+locale.$subscribe(
+  (_, state) => {
+    if (window) {
+      localStorage.setItem("locale", state.locale);
+    }
+    i18n.global.availableLocales.forEach((locale) => {
+      if (locale.startsWith(state.locale)) {
+        i18n.global.locale.value = locale;
+      }
+    });
+  },
+  { immediate: true },
+);
+theme.$subscribe(
+  (_, state) => {
+    if (window) {
+      localStorage.setItem("theme", state.name);
+    }
+    if (state.name == "light") {
+      vuetify.theme.global.name.value = "light";
+    } else if (state.name == "dark") {
+      vuetify.theme.global.name.value = "dark";
+    }
+  },
+  { immediate: true },
+);
 
 const app = createApp(App);
 
 registerPlugins(app);
 
-app.mount("#app");
+router.onError((err, to) => {
+  if (err?.message?.includes?.("Failed to fetch dynamically imported module")) {
+    if (!localStorage.getItem("vuetify:dynamic-reload")) {
+      console.log("Reloading page to fix dynamic import error");
+      localStorage.setItem("vuetify:dynamic-reload", "true");
+      location.assign(to.fullPath);
+    } else {
+      console.error("Dynamic import error, reloading page did not fix it", err);
+    }
+  } else {
+    console.error(err);
+  }
+});
+
+router.isReady().then(() => {
+  localStorage.removeItem("vuetify:dynamic-reload");
+  app.mount("#app");
+});

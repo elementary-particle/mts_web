@@ -10,28 +10,6 @@
         </h4>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col align-self="center" class="text-center">
-        <v-btn
-          size="x-large"
-          rounded="xl"
-          color="primary"
-          class="banner-button"
-          variant="outlined"
-          @click="app.openSignInDialog()"
-          >{{ t("signIn") }}</v-btn
-        >
-        <v-btn
-          size="x-large"
-          rounded="xl"
-          color="theme"
-          class="banner-button"
-          variant="outlined"
-          @click="app.openSignUpDialog()"
-          >{{ t("signUp") }}</v-btn
-        >
-      </v-col>
-    </v-row>
   </v-container>
   <v-container fluid>
     <v-row>
@@ -76,19 +54,6 @@ import { useI18n } from "vue-i18n";
 
 import { Project } from "@/domain/models/moe";
 import moeApi from "@/domain/services/moe";
-import { useAppStore } from "@/store/app";
-
-const { t } = useI18n({
-  messages: {
-    en: {
-      details: "Details",
-    },
-    zhHans: {
-      details: "详细",
-    },
-  },
-});
-const app = useAppStore();
 
 const projectList = ref<Array<Project>>([]);
 const page = ref(0);
@@ -106,6 +71,17 @@ onMounted(() => {
         loading.value = false;
       }, 500);
     });
+});
+
+const { t } = useI18n({
+  messages: {
+    en: {
+      details: "Details",
+    },
+    zhHans: {
+      details: "详细",
+    },
+  },
 });
 </script>
 

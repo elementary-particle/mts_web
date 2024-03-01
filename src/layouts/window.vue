@@ -1,5 +1,7 @@
 <template>
   <v-app>
+    <snackbar-queue />
+
     <v-main scrollable>
       <router-view></router-view>
     </v-main>

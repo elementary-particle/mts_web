@@ -99,7 +99,6 @@ const matchedPass = (value: string) =>
 const onSignUp = () => {};
 
 const { t } = useI18n({
-  locale: "en",
   messages: {
     en: {
       nameField: "Name",

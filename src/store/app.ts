@@ -1,24 +1,25 @@
-// Utilities
 import { defineStore } from "pinia";
 
+export type Notification = {
+  message: string;
+  timeout?: number;
+  color?: string;
+};
+
+export type RootState = {
+  notifications: Notification[];
+  userId: string | null;
+};
+
 export const useAppStore = defineStore("app", {
-  state: () => ({
-    signInOpened: false,
-    signUpOpened: false,
-    userId: null as string | null,
-  }),
+  state: () =>
+    ({
+      notifications: [],
+      userId: null,
+    }) as RootState,
   actions: {
-    openSignInDialog() {
-      this.signUpOpened = false;
-      this.signInOpened = true;
-    },
-    openSignUpDialog() {
-      this.signInOpened = false;
-      this.signUpOpened = true;
-    },
-    closeAccountDialog() {
-      this.signInOpened = false;
-      this.signUpOpened = false;
+    snackbar(message: string, options: Partial<Notification> = {}) {
+      this.notifications.push({ message, ...options });
     },
   },
 });

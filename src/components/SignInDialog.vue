@@ -90,7 +90,6 @@ const onSignIn = () => {
 };
 
 const { t } = useI18n({
-  locale: "en",
   messages: {
     en: {
       nameField: "Name",
