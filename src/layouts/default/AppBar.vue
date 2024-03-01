@@ -5,9 +5,9 @@
 
     <v-spacer />
 
-    <user-button></user-button>
     <lang-menu></lang-menu>
     <theme-button></theme-button>
+    <user-button></user-button>
   </v-app-bar>
 
   <v-navigation-drawer v-model="drawer" temporary>

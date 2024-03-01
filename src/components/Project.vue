@@ -97,7 +97,7 @@
             </v-row>
             <v-row class="">
               <v-col cols="4" class="text-center"
-                ><h5>{{ t("proofreadingProgress") }}</h5></v-col
+                ><h5>{{ t("auditionProgress") }}</h5></v-col
               >
               <v-col>
                 <v-progress-linear

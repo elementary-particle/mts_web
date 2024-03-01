@@ -13,6 +13,65 @@
       <v-card-actions>
         <v-btn variant="outlined" color="warning">{{ t("lock") }}</v-btn>
         <v-btn variant="outlined" color="success">{{ t("submit") }}</v-btn>
+        <v-dialog max-width="800" class="font-serif">
+          <template v-slot:activator="{ props: activatorProps }">
+            <v-btn v-bind="activatorProps" variant="outlined">{{
+              t("commitHistory")
+            }}</v-btn>
+          </template>
+
+          <template>
+            <v-card>
+              <v-card-item class="pb-2">
+                <v-card-title>{{ t("commitHistory") }}</v-card-title>
+              </v-card-item>
+              <v-divider />
+              <v-list
+                item-props
+                lines="three"
+                height="300"
+                style="overflow-y: auto"
+              >
+                <v-list-item
+                  title="[[ commit.user ]]"
+                  subtitle="[[ commit.time ]]"
+                  v-ripple
+                >
+                  <template v-slot:prepend>
+                    <v-avatar color="grey">
+                      <span class="text-h5">A</span>
+                    </v-avatar>
+                  </template>
+                  <p class="mt-2">[[ commit.description ]]</p>
+                </v-list-item>
+                <v-list-item
+                  title="[[ commit.user ]]"
+                  subtitle="[[ commit.time ]]"
+                  v-ripple
+                >
+                  <template v-slot:prepend>
+                    <v-avatar color="grey">
+                      <span class="text-h5">B</span>
+                    </v-avatar>
+                  </template>
+                  <p class="mt-2">[[ commit.description ]]</p>
+                </v-list-item>
+                <v-list-item
+                  title="[[ commit.user ]]"
+                  subtitle="[[ commit.time ]]"
+                  v-ripple
+                >
+                  <template v-slot:prepend>
+                    <v-avatar color="grey">
+                      <span class="text-h5">C</span>
+                    </v-avatar>
+                  </template>
+                  <p class="mt-2">[[ commit.description ]]</p>
+                </v-list-item>
+              </v-list>
+            </v-card>
+          </template>
+        </v-dialog>
       </v-card-actions>
     </v-card>
 
@@ -150,6 +209,11 @@
         <v-icon v-if="drawer">mdi-chevron-double-right</v-icon>
       </v-btn>
     </v-toolbar>
+    <v-progress-linear
+      :model-value="
+        ((selected ? selected.index : 0) / (pairs.length - 1)) * 100
+      "
+    ></v-progress-linear>
 
     <v-container class="fill-height py-0 overflow-hidden d-flex" fluid>
       <v-row class="fill-height">
@@ -427,9 +491,10 @@ const { t } = useI18n({
       issues: "Issues",
       lock: "Lock",
       submit: "Submit",
+      commitHistory: "Commit History",
       uploadFile: "Upload File",
       uploadOk: "Uploaded file has been imported",
-      sumbitOk: "Changes have been submitted to the server",
+      submitOk: "Changes have been submitted to the server",
     },
     zhHans: {
       sq: "序号",
@@ -439,6 +504,7 @@ const { t } = useI18n({
       issues: "问题",
       lock: "锁定",
       submit: "提交",
+      commitHistory: "历史提交",
       uploadFile: "上传文件",
       uploadOk: "成功导入上传的文件",
       submitOk: "修改已上传到服务器",
