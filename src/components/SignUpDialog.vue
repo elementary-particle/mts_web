@@ -1,5 +1,6 @@
 <template>
   <v-dialog v-model="model" width="500">
+    <loading-overlay model="loading" />
     <v-sheet class="pa-12" rounded>
       <h2 class="mb-5 text-center">{{ t("signUp") }}</h2>
       <v-divider />
@@ -69,14 +70,46 @@
       </div>
     </v-sheet>
   </v-dialog>
+  <v-dialog v-model="verification" width="500">
+    <v-card
+      class="py-8 px-6 text-center mx-auto ma-4"
+      elevation="12"
+      max-width="400"
+      width="100%"
+    >
+      <h3 class="text-h6 mb-4">Verify Your Account</h3>
+      <div class="text-body-2">
+        We sent a verification code to {{ email }} <br />
+        Please check your email and paste the code below.
+      </div>
+
+      <v-sheet color="surface">
+        <v-otp-input v-model="otp" :disabled="validating"></v-otp-input>
+      </v-sheet>
+
+      <v-btn
+        class="my-4"
+        color="primary"
+        height="40"
+        text="Verify"
+        variant="flat"
+        :loading="validating"
+        @click="validating = true"
+        :disabled="otp.length < 6"
+      ></v-btn>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+import LoadingOverlay from "./LoadingOverlay.vue";
 
 const model = defineModel({ default: false });
 const emit = defineEmits(["click:signIn"]);
+
+const loading = ref(false);
 
 const name = ref("");
 const pass = ref("");
@@ -84,6 +117,10 @@ const repeatPass = ref("");
 const email = ref("");
 const valid = ref(false);
 const pending = ref(false);
+
+const verification = ref(false);
+const otp = ref("");
+const validating = ref(false);
 
 const required = (value: string) => !!value || t("fieldRequired");
 const validEmail = (value: string) => {
@@ -96,7 +133,10 @@ const minLength = (length: number) => (value: string) =>
 const matchedPass = (value: string) =>
   (value === pass.value ?? "") || t("unmatchedPass");
 
-const onSignUp = () => {};
+const onSignUp = () => {
+  model.value = false;
+  verification.value = true;
+};
 
 const { t } = useI18n({
   messages: {

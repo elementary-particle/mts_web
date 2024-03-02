@@ -1,150 +1,100 @@
 <template>
   <v-container>
-    <v-row class="intro">
-      <v-col :cols="1">
-        <v-avatar color="surface-variant" :size="66"></v-avatar>
+    <loading-overlay v-model="loading"></loading-overlay>
+    <v-row>
+      <v-col cols="8">
+        <v-expansion-panels>
+          <v-expansion-panel v-for="unit in unitList" :key="unit.id">
+            <v-expansion-panel-title ripple>
+              <v-row class="px-4" no-gutters>
+                <v-col cols="3">{{ unit.title }}</v-col>
+                <v-col cols="5" class="text-medium-emphasis">{{
+                  "[[ lastCommit.description ]]"
+                }}</v-col>
+                <v-col cols="4" class="text-right text-medium-emphasis">{{
+                  "[[ lastCommit.time ]]"
+                }}</v-col>
+              </v-row>
+            </v-expansion-panel-title>
+            <v-progress-linear model-value="10" color="light-green">
+            </v-progress-linear>
+            <v-expansion-panel-text
+              style="background-color: rgba(var(--v-theme-surface-light), 0.4)"
+              class="pt-2"
+            >
+              <v-row class="mx-3">
+                <v-col cols="6">
+                  {{ "Status: [[ unit.currentStatus ]]" }}
+                </v-col>
+                <v-col class="text-right"
+                  ><v-btn
+                    variant="outlined"
+                    density="comfortable"
+                    @click="navToUnit(unit.id as string)"
+                    >{{ t("details") }}</v-btn
+                  ></v-col
+                >
+              </v-row>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-col>
-      <v-col cols="7">
-        <h3 class="text-h5 mb-4">
-          {{ project?.name ?? "[project.name]" }}
-        </h3>
-        <h5 class="subheading">
-          {{ project?.id ?? "[project.id]" }}
-        </h5>
-      </v-col>
-      <v-col>
-        <v-row
-          align-self="center"
-          justify="space-around"
-          style="text-align: end"
+      <v-col cols="4">
+        <v-card
+          class="mx-auto pb-2"
+          variant="tonal"
+          color="primary"
+          rounded="0"
         >
-          <v-col>
-            <v-btn variant="outlined" v-if="user.id">Join</v-btn>
-          </v-col>
-          <v-col><v-btn variant="outlined">Details</v-btn></v-col>
-        </v-row>
+          <v-card-text>
+            <p class="font-serif text-disabled">
+              {{ project?.id ?? "[ project.id ]" }}
+            </p>
+            <p class="text-h4 text--primary font-serif font-weight-medium mb-4">
+              {{ t(`${project?.name}`) ?? project?.name }}
+            </p>
+          </v-card-text>
+          <v-card-actions class="mx-2">
+            <v-btn variant="outlined" v-if="user.id" color="success">{{
+              t("join")
+            }}</v-btn>
+            <v-btn variant="outlined" color="secondary">{{
+              t("details")
+            }}</v-btn>
+          </v-card-actions>
+          <v-divider class="my-2" />
+          <v-card-title>{{ t("introduction") }}</v-card-title>
+          <v-card-text class="font-weight-light">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Pellentesque at arcu cursus, ultrices dui a, egestas leo. Quisque
+            sem erat, efficitur vitae nibh eu, pharetra porttitor neque.
+            Curabitur et urna nec erat tristique viverra et quis leo. Nunc non
+            ipsum interdum, scelerisque sapien vel, iaculis massa. Class aptent
+            taciti sociosqu ad litora torquent per conubia nostra, per inceptos
+            himenaeos. Aenean interdum mi eu nunc rutrum, sed eleifend arcu
+            iaculis. Nullam dui nisl, vehicula et interdum sed, pharetra at leo.
+            Aliquam bibendum dui finibus, eleifend diam in, mollis leo. In
+            libero turpis, vulputate nec gravida et, sollicitudin ut massa.
+            Integer et erat est. Mauris cursus lobortis ante, ut tincidunt nisl
+            lobortis id. In at sapien dapibus ligula malesuada interdum ut sit
+            amet erat. Vestibulum a accumsan tortor.
+          </v-card-text>
+          <v-divider class="my-2" />
+          <v-card-title>{{ t("contributors") }}</v-card-title>
+          <v-row no-gutters class="mx-4">
+            <v-btn icon class="mx-1 my-2"
+              ><v-avatar><span class="text-h5">A</span></v-avatar></v-btn
+            >
+            <v-btn icon class="mx-1 my-2"
+              ><v-avatar><span class="text-h5">B</span></v-avatar></v-btn
+            >
+            <v-btn icon class="mx-1 my-2"
+              ><v-avatar><span class="text-h5">C</span></v-avatar></v-btn
+            >
+          </v-row>
+        </v-card>
       </v-col>
     </v-row>
-
-    <v-tabs v-model="tab" color="deep-purple-accent-4" align-tabs="title" grow>
-      <v-tab :value="0">{{ t("info") }}</v-tab>
-      <v-tab :value="1">{{ t("units") }}</v-tab>
-      <v-tab :value="2">{{ t("contributors") }}</v-tab>
-    </v-tabs>
-
-    <v-divider></v-divider>
-
-    <v-window v-model="tab">
-      <loading-overlay v-model="loading"></loading-overlay>
-      <v-window-item :value="0">
-        <v-row class="info">
-          <v-col cols="6">
-            <v-card>
-              <v-card-item>
-                <v-card-title>{{ t("introduction") }}</v-card-title>
-              </v-card-item>
-              <v-card-text>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Pellentesque at arcu cursus, ultrices dui a, egestas leo.
-                Quisque sem erat, efficitur vitae nibh eu, pharetra porttitor
-                neque. Curabitur et urna nec erat tristique viverra et quis leo.
-                Nunc non ipsum interdum, scelerisque sapien vel, iaculis massa.
-                Class aptent taciti sociosqu ad litora torquent per conubia
-                nostra, per inceptos himenaeos. Aenean interdum mi eu nunc
-                rutrum, sed eleifend arcu iaculis. Nullam dui nisl, vehicula et
-                interdum sed, pharetra at leo. Aliquam bibendum dui finibus,
-                eleifend diam in, mollis leo. In libero turpis, vulputate nec
-                gravida et, sollicitudin ut massa. Integer et erat est. Mauris
-                cursus lobortis ante, ut tincidunt nisl lobortis id. In at
-                sapien dapibus ligula malesuada interdum ut sit amet erat.
-                Vestibulum a accumsan tortor.
-              </v-card-text>
-            </v-card>
-            <v-card>
-              <v-card-item>
-                <v-card-title>{{ t("requirement") }}</v-card-title>
-              </v-card-item>
-              <v-card-text>
-                Sed at imperdiet tellus. Pellentesque vitae lacus sed augue
-                rutrum ornare in a nulla. Nam risus mauris, mollis vitae felis
-                sit amet, pretium sodales mauris. Integer tempor lacus nunc, sit
-                amet condimentum diam gravida vel. Ut sodales tristique ante, in
-                placerat nibh tincidunt et. Donec in lorem eget felis posuere
-                porta eu et neque. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit.
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col>
-            <v-row class="">
-              <v-col cols="4" class="text-center"
-                ><h5>{{ t("translationProgress") }}</h5></v-col
-              >
-              <v-col>
-                <v-progress-linear
-                  model-value="80"
-                  color="light-green"
-                  height="20"
-                  striped
-                >
-                  <template v-slot:default="{ value }">
-                    <strong>{{ Math.ceil(value) }}%</strong>
-                  </template>
-                </v-progress-linear>
-              </v-col>
-            </v-row>
-            <v-row class="">
-              <v-col cols="4" class="text-center">
-                <h5>{{ t("auditionProgress") }}</h5>
-              </v-col>
-              <v-col>
-                <v-progress-linear
-                  model-value="10"
-                  color="cyan"
-                  height="20"
-                  striped
-                >
-                  <template v-slot:default="{ value }">
-                    <strong>{{ Math.ceil(value) }}%</strong>
-                  </template>
-                </v-progress-linear>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-      </v-window-item>
-      <v-window-item :value="1">
-        <v-data-iterator
-          :items="unitList"
-          :page="unitPage"
-          :items-per-page="4"
-          class="mx-4"
-        >
-          <template v-slot:default="{ items }">
-            <v-row class="unit">
-              <v-col cols="6" v-for="item in items" :key="item.raw.id">
-                <v-card hover>
-                  <v-card-item>
-                    <v-card-title>{{ item.raw.title }}</v-card-title>
-                    <v-card-subtitle>{{ item.raw.id }}</v-card-subtitle>
-                  </v-card-item>
-                  <v-card-text> Sample Text in Unit </v-card-text>
-                  <v-card-actions>
-                    <v-btn @click="navToUnit(item.raw.id)" variant="outlined">{{
-                      t("details")
-                    }}</v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-col>
-            </v-row>
-          </template>
-          <template v-slot:footer="{ pageCount }">
-            <v-pagination :length="pageCount" v-model="unitPage"></v-pagination>
-          </template>
-        </v-data-iterator>
-      </v-window-item>
-      <v-window-item :value="2"></v-window-item>
-    </v-window>
   </v-container>
 </template>
 
@@ -163,6 +113,7 @@ const { t } = useI18n({
   messages: {
     en: {
       details: "Details",
+      join: "Join Project",
       info: "Info",
       units: "Units",
       contributors: "Contributors",
@@ -171,9 +122,11 @@ const { t } = useI18n({
       translationProgress: "Translation Progress",
       auditionProgress: "Audition Progress",
       notLoggedIn: "You must be logged in first",
+      shirotsume: "Shirotsume Souwa",
     },
     zhHans: {
       details: "详细",
+      join: "加入项目",
       info: "基本信息",
       units: "单元",
       contributors: "贡献者",
@@ -182,6 +135,7 @@ const { t } = useI18n({
       translationProgress: "翻译进度",
       auditionProgress: "校对进度",
       notLoggedIn: "需要登录才能查看",
+      shirotsume: "白詰草話",
     },
   },
 });
@@ -229,19 +183,3 @@ watch(
   { immediate: true },
 );
 </script>
-
-<style>
-.intro {
-  padding-top: 3%;
-  padding-bottom: 2%;
-}
-
-.info {
-  padding-top: 48px;
-}
-
-.unit {
-  padding-top: 3%;
-  padding-bottom: 3%;
-}
-</style>
