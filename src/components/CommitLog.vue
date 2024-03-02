@@ -16,16 +16,18 @@
         <v-list item-props lines="three" height="300" style="overflow-y: auto">
           <template v-for="commit in commitList" :key="commit.id">
             <v-list-item
-              :title="commit.id"
+              :title="commit.createdBy"
               :subtitle="commit.createdAt"
               v-ripple
             >
               <template v-slot:prepend>
                 <v-avatar color="grey">
-                  <span class="text-h5">A</span>
+                  <span class="text-h5">{{
+                    commit.createdBy[0].toUpperCase()
+                  }}</span>
                 </v-avatar>
               </template>
-              <p class="mt-2">{{ commit.createdBy }}</p>
+              <p class="mt-2">{{ commit.id }}</p>
             </v-list-item>
           </template>
         </v-list>
