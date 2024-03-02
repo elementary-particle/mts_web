@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="model" width="500">
-    <loading-overlay model="loading" />
+    <loading-overlay v-model="loading" />
     <v-sheet class="pa-12" rounded>
       <h2 class="mb-5 text-center">{{ t("signUp") }}</h2>
       <v-divider />
@@ -104,7 +104,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import LoadingOverlay from "./LoadingOverlay.vue";
 
 const model = defineModel({ default: false });
 const emit = defineEmits(["click:signIn"]);
