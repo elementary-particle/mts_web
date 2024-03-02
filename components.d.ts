@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Affix: typeof import('./src/components/Affix.vue')['default']
+    CommitLog: typeof import('./src/components/CommitLog.vue')['default']
     Editor: typeof import('./src/components/Editor.vue')['default']
     Home: typeof import('./src/components/Home.vue')['default']
     LangMenu: typeof import('./src/components/LangMenu.vue')['default']

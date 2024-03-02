@@ -26,8 +26,6 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { useAppStore } from "@/store/app";
-
 const { t } = useI18n({
   messages: {
     en: {

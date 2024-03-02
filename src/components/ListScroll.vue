@@ -1,7 +1,7 @@
 <template>
   <div ref="view" class="flex-0-1 overflow-y-hidden">
     <transition-group name="item">
-      <template v-for="{ item, index } in display" :key="index" :item="item">
+      <template v-for="{ item, index } in display" :key="index">
         <div
           :ref="
             (el) => {
@@ -90,7 +90,7 @@ watchEffect(() => {
 
 watch(
   display,
-  (display_) => {
+  () => {
     if (tag.value && !observing.value) {
       observing.value = true;
       observer.observe(tag.value);

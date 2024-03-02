@@ -13,65 +13,7 @@
       <v-card-actions>
         <v-btn variant="outlined" color="warning">{{ t("lock") }}</v-btn>
         <v-btn variant="outlined" color="success">{{ t("submit") }}</v-btn>
-        <v-dialog max-width="800" class="font-serif">
-          <template v-slot:activator="{ props: activatorProps }">
-            <v-btn v-bind="activatorProps" variant="outlined">{{
-              t("commitHistory")
-            }}</v-btn>
-          </template>
-
-          <template>
-            <v-card>
-              <v-card-item class="pb-2">
-                <v-card-title>{{ t("commitHistory") }}</v-card-title>
-              </v-card-item>
-              <v-divider />
-              <v-list
-                item-props
-                lines="three"
-                height="300"
-                style="overflow-y: auto"
-              >
-                <v-list-item
-                  title="[[ commit.user ]]"
-                  subtitle="[[ commit.time ]]"
-                  v-ripple
-                >
-                  <template v-slot:prepend>
-                    <v-avatar color="grey">
-                      <span class="text-h5">A</span>
-                    </v-avatar>
-                  </template>
-                  <p class="mt-2">[[ commit.description ]]</p>
-                </v-list-item>
-                <v-list-item
-                  title="[[ commit.user ]]"
-                  subtitle="[[ commit.time ]]"
-                  v-ripple
-                >
-                  <template v-slot:prepend>
-                    <v-avatar color="grey">
-                      <span class="text-h5">B</span>
-                    </v-avatar>
-                  </template>
-                  <p class="mt-2">[[ commit.description ]]</p>
-                </v-list-item>
-                <v-list-item
-                  title="[[ commit.user ]]"
-                  subtitle="[[ commit.time ]]"
-                  v-ripple
-                >
-                  <template v-slot:prepend>
-                    <v-avatar color="grey">
-                      <span class="text-h5">C</span>
-                    </v-avatar>
-                  </template>
-                  <p class="mt-2">[[ commit.description ]]</p>
-                </v-list-item>
-              </v-list>
-            </v-card>
-          </template>
-        </v-dialog>
+        <commit-log :id="props.id"></commit-log>
       </v-card-actions>
     </v-card>
 
@@ -156,19 +98,20 @@
         icon
         @click="upload"
         :disabled="uploadFile.length == 0"
-        :title="'Import Xlsx'"
-        ><v-icon>mdi-upload</v-icon></v-btn
+        :title="t('uploadFile')"
       >
+        <v-icon>mdi-upload</v-icon>
+      </v-btn>
 
-      <v-btn icon @click="download" :title="'Export Xlsx'"
-        ><v-icon>mdi-download</v-icon></v-btn
-      >
+      <v-btn icon @click="download" :title="t('downloadFile')">
+        <v-icon>mdi-download</v-icon>
+      </v-btn>
 
       <v-btn
         icon
-        @click="select(pairs[0])"
+        @click="select(pairs.length > 0 ? pairs[0] : null)"
         :disabled="!selected || selected?.index == 0"
-        :title="'Turn to first line'"
+        :title="t('firstRecord')"
       >
         <v-icon>mdi-page-first</v-icon>
       </v-btn>
@@ -177,7 +120,7 @@
         icon
         @click="selectPrev"
         :disabled="!selected || selected?.index == 0"
-        :title="'Turn previous'"
+        :title="t('prevRecord')"
       >
         <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
@@ -186,7 +129,7 @@
         icon
         @click="selectNext"
         :disabled="!selected || selected?.index == pairs.length - 1"
-        :title="'Turn next'"
+        :title="t('nextRecord')"
       >
         <v-icon>mdi-chevron-right</v-icon>
       </v-btn>
@@ -195,12 +138,12 @@
         icon
         @click="select(pairs[pairs.length - 1])"
         :disabled="!selected || selected?.index == pairs.length - 1"
-        :title="'Turn to last line'"
+        :title="t('lastRecord')"
       >
         <v-icon>mdi-page-last</v-icon>
       </v-btn>
 
-      <v-btn icon @click="commit" :disabled="!app.userId" :title="'Submit'">
+      <v-btn icon @click="commit" :disabled="!user.id" :title="'Submit'">
         <v-icon>mdi-cloud-upload</v-icon>
       </v-btn>
 
@@ -311,17 +254,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
-import { onBeforeRouteLeave } from "vue-router";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useAppStore } from "@/store/app";
-import { useTheme } from "vuetify";
 import { onKeyStroke } from "@vueuse/core";
 import { utils, read, writeFile } from "xlsx";
 
 import moeApi from "@/domain/services/moe";
 import { TextPair, TextRecord, Unit, makeTextPair } from "@/domain/models/moe";
-import ListScroll from "./ListScroll.vue";
+import { useAppStore } from "@/store/app";
+import { useUserStore } from "@/store/user";
 
 class PairItem {
   context: string;
@@ -341,7 +282,7 @@ class PairItem {
 }
 
 const app = useAppStore();
-const theme = useTheme();
+const user = useUserStore();
 
 const props = defineProps<{
   id: string;
@@ -465,7 +406,7 @@ const upload = () => {
               target: string;
             }>(book.Sheets[unitId], { defval: "" })
             .map(
-              ({ sq, context, source, target }, index) =>
+              ({ sq, source, target }, index) =>
                 new PairItem(sq, source, target, index),
             );
         }
@@ -491,7 +432,6 @@ const { t } = useI18n({
       issues: "Issues",
       lock: "Lock",
       submit: "Submit",
-      commitHistory: "Commit History",
       uploadFile: "Upload File",
       uploadOk: "Uploaded file has been imported",
       submitOk: "Changes have been submitted to the server",
@@ -504,7 +444,6 @@ const { t } = useI18n({
       issues: "问题",
       lock: "锁定",
       submit: "提交",
-      commitHistory: "历史提交",
       uploadFile: "上传文件",
       uploadOk: "成功导入上传的文件",
       submitOk: "修改已上传到服务器",

@@ -1,11 +1,11 @@
-class Project {
+export class Project {
   constructor(
     readonly name: string,
     readonly id?: string,
   ) {}
 }
 
-class Unit {
+export class Unit {
   constructor(
     readonly title: string,
     readonly id?: string,
@@ -15,7 +15,7 @@ class Unit {
   }
 }
 
-class Source {
+export class Source {
   constructor(
     readonly sq: number,
     readonly content: string,
@@ -23,21 +23,22 @@ class Source {
   ) {}
 }
 
-class Commit {
+export class Commit {
   constructor(
     readonly id: string,
+    readonly createdBy: string,
     readonly createdAt: string,
   ) {}
 }
 
-class TextRecord {
+export class TextRecord {
   constructor(
     readonly sq: number,
     readonly content: string,
   ) {}
 }
 
-class TextPair {
+export class TextPair {
   constructor(
     readonly sq: number,
     readonly meta: string,
@@ -46,7 +47,15 @@ class TextPair {
   ) {}
 }
 
-const makeTextPair = (sourceList: Source[], recordList?: TextRecord[]) => {
+export type UserInfo = {
+  id: string;
+  isAdmin: boolean;
+};
+
+export const makeTextPair = (
+  sourceList: Source[],
+  recordList?: TextRecord[],
+) => {
   const map = new Map<
     number,
     {
@@ -79,6 +88,3 @@ const makeTextPair = (sourceList: Source[], recordList?: TextRecord[]) => {
 
   return textPairList;
 };
-
-export { TextPair, Project, Unit, Source, Commit, TextRecord };
-export { makeTextPair };

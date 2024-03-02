@@ -25,14 +25,14 @@
         signIn = true;
       }
     "
-    v-if="!app.userId"
+    v-if="!user.id"
     ><v-icon>mdi-account</v-icon></v-btn
   >
-  <v-menu min-width="200px" rounded v-if="app.userId">
+  <v-menu min-width="200px" rounded v-if="user.id">
     <template v-slot:activator="{ props }">
       <v-btn icon v-bind="props">
         <v-avatar color="primary">
-          <span class="text-h5">A</span>
+          <span class="text-h5">{{ nameAbbrev }}</span>
         </v-avatar>
       </v-btn>
     </template>
@@ -42,11 +42,11 @@
           <v-row>
             <v-col cols="3">
               <v-avatar color="primary">
-                <span class="text-h5">A</span>
+                <span class="text-h5">{{ nameAbbrev }}</span>
               </v-avatar>
             </v-col>
             <v-col>
-              <h3>Username</h3>
+              <h3>{{ name }}</h3>
               <p class="text-caption mt-1">email@sample.com</p>
             </v-col>
           </v-row>
@@ -57,8 +57,16 @@
         <v-list-item @click="null">
           <v-list-item-title>{{ t("settings") }}</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="app.userId = ''">
-          <v-list-item-title>{{ t("logout") }}</v-list-item-title>
+        <v-list-item
+          @click="
+            () => {
+              moeApi.signOut().then(() => {
+                user.check();
+              });
+            }
+          "
+        >
+          <v-list-item-title>{{ t("signOut") }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-card>
@@ -67,24 +75,48 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useAppStore } from "@/store/app";
 import { useI18n } from "vue-i18n";
 
-const app = useAppStore();
+import { useUserStore } from "@/store/user";
+import moeApi from "@/domain/services/moe";
+import { watchEffect } from "vue";
+
+const user = useUserStore();
 
 const { t } = useI18n({
   messages: {
     en: {
       settings: "Settings",
-      logout: "Log out",
+      signOut: "Sign Out",
     },
     zhHans: {
       settings: "设置",
-      logout: "登出",
+      signOut: "登出",
     },
   },
 });
 
 const signIn = ref(false);
 const signUp = ref(false);
+
+const name = ref("");
+const nameAbbrev = ref("");
+
+user.$subscribe(
+  (_, state) => {
+    if (state.id) {
+      moeApi.userById(state.id).then(({ name: name_ }) => {
+        name.value = name_;
+      });
+    } else {
+      name.value = "";
+    }
+  },
+  { immediate: true },
+);
+
+watchEffect(() => {
+  const firstChar = name.value.length > 0 ? name.value[0] : "";
+  nameAbbrev.value = firstChar.toUpperCase();
+});
 </script>

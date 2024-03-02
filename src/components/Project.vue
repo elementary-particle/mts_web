@@ -18,12 +18,10 @@
           justify="space-around"
           style="text-align: end"
         >
-          <v-col
-            ><v-btn variant="outlined" v-if="app.userId"
-              >Join this project</v-btn
-            ></v-col
-          >
-          <v-col><v-btn variant="outlined">More Info</v-btn></v-col>
+          <v-col>
+            <v-btn variant="outlined" v-if="user.id">Join</v-btn>
+          </v-col>
+          <v-col><v-btn variant="outlined">Details</v-btn></v-col>
         </v-row>
       </v-col>
     </v-row>
@@ -96,9 +94,9 @@
               </v-col>
             </v-row>
             <v-row class="">
-              <v-col cols="4" class="text-center"
-                ><h5>{{ t("auditionProgress") }}</h5></v-col
-              >
+              <v-col cols="4" class="text-center">
+                <h5>{{ t("auditionProgress") }}</h5>
+              </v-col>
               <v-col>
                 <v-progress-linear
                   model-value="10"
@@ -132,11 +130,9 @@
                   </v-card-item>
                   <v-card-text> Sample Text in Unit </v-card-text>
                   <v-card-actions>
-                    <v-btn
-                      @click="enterProjectAttempt(item.raw.id)"
-                      variant="outlined"
-                      >{{ t("details") }}</v-btn
-                    >
+                    <v-btn @click="navToUnit(item.raw.id)" variant="outlined">{{
+                      t("details")
+                    }}</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-col>
@@ -147,7 +143,7 @@
           </template>
         </v-data-iterator>
       </v-window-item>
-      <v-window-item :value="2"> Contributors </v-window-item>
+      <v-window-item :value="2"></v-window-item>
     </v-window>
   </v-container>
 </template>
@@ -155,12 +151,13 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import router from "@/router";
+import axios from "axios";
 
+import router from "@/router";
 import { Unit, Project } from "@/domain/models/moe";
 import moeApi from "@/domain/services/moe";
 import { useAppStore } from "@/store/app";
-import axios from "axios";
+import { useUserStore } from "@/store/user";
 
 const { t } = useI18n({
   messages: {
@@ -188,7 +185,9 @@ const { t } = useI18n({
     },
   },
 });
+
 const app = useAppStore();
+const user = useUserStore();
 
 const props = defineProps<{
   id: string;
@@ -201,8 +200,8 @@ const loading = ref(false);
 const tab = ref(null);
 const unitPage = ref(1);
 
-const enterProjectAttempt = function (unitId: string) {
-  if (!app.userId) {
+const navToUnit = function (unitId: string) {
+  if (!user.id) {
     app.snackbar(t("notLoggedIn"), { color: "error" });
   } else {
     router.push(`/unit/${unitId}`);

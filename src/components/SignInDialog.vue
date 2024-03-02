@@ -58,8 +58,10 @@ import { useI18n } from "vue-i18n";
 
 import moeApi from "@/domain/services/moe";
 import { useAppStore } from "@/store/app";
+import { useUserStore } from "@/store/user";
 
-let app = useAppStore();
+const app = useAppStore();
+const user = useUserStore();
 
 const model = defineModel({ default: false });
 const emit = defineEmits(["click:signUp"]);
@@ -78,9 +80,12 @@ const onSignIn = () => {
   }
   moeApi
     .signIn(name.value, pass.value)
-    .then((userId) => {
-      app.userId = userId;
+    .then(() => {
+      user.check();
       model.value = false;
+    })
+    .catch(() => {
+      app.snackbar(t("signInFailed"), { color: "error" });
     })
     .finally(() => {
       setTimeout(() => {
@@ -97,6 +102,7 @@ const { t } = useI18n({
       signIn: "Sign In",
       fieldRequired: "Required",
       signUp: "No Account?",
+      signInFailed: "Unable to sign in",
     },
     zhHans: {
       nameField: "用户名",
@@ -104,6 +110,7 @@ const { t } = useI18n({
       signIn: "登录",
       fieldRequired: "必须",
       signUp: "没有账户？",
+      signInFailed: "登录失败",
     },
   },
 });

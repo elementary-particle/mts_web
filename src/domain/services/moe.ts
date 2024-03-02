@@ -1,5 +1,12 @@
 import axios, { Axios } from "axios";
-import { Project, Unit, Source, Commit, TextRecord } from "@/domain/models/moe";
+import {
+  Project,
+  Unit,
+  Source,
+  Commit,
+  TextRecord,
+  UserInfo,
+} from "@/domain/models/moe";
 
 class MoeApi {
   private readonly axios: Axios;
@@ -12,9 +19,21 @@ class MoeApi {
     });
   }
 
-  signIn(name: string, pass: string): Promise<string> {
+  signIn(name: string, pass: string): Promise<void> {
+    return this.axios.post("/auth/sign-in", { name, pass }).then(() => {});
+  }
+
+  signOut(): Promise<void> {
+    return this.axios.get("/auth/sign-out").then(() => {});
+  }
+
+  checkClaim(): Promise<UserInfo> {
+    return this.axios.get("/auth/claim").then(({ data }) => data);
+  }
+
+  userById(id: string): Promise<{ id: string; name: string }> {
     return this.axios
-      .post("/auth/signin", { name, pass })
+      .get("/auth/user", { params: { id } })
       .then(({ data }) => data);
   }
 
@@ -35,7 +54,7 @@ class MoeApi {
   unitList(projectId: string): Promise<Unit[]> {
     return this.axios
       .get("/unit", {
-        params: { projectId },
+        params: { "project-id": projectId },
       })
       .then(({ data }) => data);
   }
@@ -71,7 +90,7 @@ class MoeApi {
   commitList(unitId: string): Promise<Commit[]> {
     return this.axios
       .get("/commit", {
-        params: { unitId },
+        params: { "unit-id": unitId },
       })
       .then(({ data }) => data);
   }

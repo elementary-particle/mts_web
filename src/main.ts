@@ -18,9 +18,11 @@ import App from "./App.vue";
 import { createApp } from "vue";
 import { useLocaleStore } from "@/store/locale";
 import { useThemeStore } from "@/store/theme";
+import { useUserStore } from "./store/user";
 
 const locale = useLocaleStore(pinia);
 const theme = useThemeStore(pinia);
+const user = useUserStore(pinia);
 
 locale.$subscribe(
   (_, state) => {
@@ -48,6 +50,8 @@ theme.$subscribe(
   },
   { immediate: true },
 );
+
+user.check();
 
 const app = createApp(App);
 
