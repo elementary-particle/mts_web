@@ -94,7 +94,7 @@ const validEmail = (value: string) => {
 const minLength = (length: number) => (value: string) =>
   value.length >= length || t("tooShort", { length });
 const matchedPass = (value: string) =>
-  (value === pass.value ?? "") || t("unmatchedPass");
+  value === pass.value || t("unmatchedPass");
 
 const onSignUp = () => {};
 
