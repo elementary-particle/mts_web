@@ -44,15 +44,31 @@
 
         <v-divider />
 
-        <v-btn
-          icon
-          @click="upload"
-          :disabled="uploadFile.length == 0"
-          :title="t('uploadFile')"
-          variant="text"
-        >
-          <v-icon :icon="mdiUpload" />
-        </v-btn>
+        <v-menu min-width="200" location="end">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon
+              @click="upload"
+              :title="t('uploadFile')"
+              variant="text"
+            >
+              <v-icon :icon="mdiUpload" />
+            </v-btn>
+          </template>
+
+          <v-card class="pa-2">
+            <v-file-input
+              density="compact"
+              variant="outlined"
+              :label="t('uploadFile')"
+              accept=".xlsx"
+              class="font-serif"
+              show-size
+              v-model="uploadFile"
+            ></v-file-input>
+          </v-card>
+        </v-menu>
 
         <v-btn icon @click="download" :title="t('downloadFile')" variant="text">
           <v-icon :icon="mdiDownload" />
@@ -152,18 +168,7 @@
 
         <v-divider vertical />
 
-        <v-col cols="3" class="pt-4">
-          <v-file-input
-            density="compact"
-            variant="outlined"
-            :label="t('uploadFile')"
-            accept=".xlsx"
-            class="font-serif"
-            rounded="0"
-            show-size
-            v-model="uploadFile"
-          ></v-file-input>
-
+        <v-col cols="4" class="pt-4">
           <v-row>
             <v-col cols="5">
               <v-text-field
@@ -217,12 +222,12 @@
             @keydown.enter.prevent="selectNext"
           ></v-textarea>
         </v-col>
+      </v-row>
 
-        <v-divider vertical />
-
-        <v-col cols="3" class="fill-height" v-show="drawer">
+      <v-navigation-drawer location="right" v-model="drawer">
+        <v-container class="h-100">
           <v-card
-            class="fill-height mx-auto d-flex flex-column font-serif"
+            class="fill-height d-flex flex-column font-serif"
             variant="outlined"
           >
             <v-card-item>
@@ -252,8 +257,8 @@
               </template>
             </v-list>
           </v-card>
-        </v-col>
-      </v-row>
+        </v-container>
+      </v-navigation-drawer>
     </v-container>
   </v-sheet>
 </template>
@@ -453,8 +458,13 @@ const { t } = useI18n({
       lock: "Lock",
       submit: "Submit",
       uploadFile: "Upload File",
+      downloadFile: "Download File",
       uploadOk: "Uploaded file has been imported",
       submitOk: "Changes have been submitted to the server",
+      firstRecord: "Goto First Record",
+      prevRecord: "Goto Previous Record",
+      nextRecord: "Goto Next Record",
+      lastRecord: "Goto Last Record",
     },
     zhHans: {
       sq: "序号",
@@ -465,8 +475,13 @@ const { t } = useI18n({
       lock: "锁定",
       submit: "提交",
       uploadFile: "上传文件",
+      downloadFile: "下载文件",
       uploadOk: "成功导入上传的文件",
       submitOk: "修改已上传到服务器",
+      firstRecord: "第一条",
+      prevRecord: "上一条",
+      nextRecord: "下一条",
+      lastRecord: "最后一条",
     },
   },
 });

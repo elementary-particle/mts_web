@@ -9,12 +9,22 @@
               <v-card
                 link
                 variant="tonal"
-                class="my-2"
+                class="my-2 text-mono"
                 @click="$router.push(`/unit/${item.raw.id}`)"
-                :title="item.raw.title"
-                :subtitle="item.raw.id"
-                :text="item.raw.commitId ?? ''"
               >
+                <v-row class="align-center pa-2">
+                  <v-col cols="2">
+                    <p>{{ item.raw.title }}</p>
+                  </v-col>
+                  <v-divider vertical />
+                  <v-col cols="6">
+                    <p>{{ item.raw.id }}</p>
+                  </v-col>
+                  <v-divider vertical />
+                  <v-col cols="4">
+                    <p>{{ item.raw.commitId?.slice(0, 8) ?? "[no commit]" }}</p>
+                  </v-col>
+                </v-row>
               </v-card>
             </template>
           </template>
@@ -25,18 +35,13 @@
         </v-data-iterator>
       </v-col>
       <v-col cols="4">
-        <v-card
-          class="mx-auto pb-2"
-          variant="tonal"
-          color="primary"
-          rounded="0"
-        >
+        <v-card class="mx-auto pb-2" variant="tonal" color="primary">
           <v-card-text>
             <p class="font-serif text-disabled">
               {{ project?.id ?? "[ project.id ]" }}
             </p>
             <p class="text-h4 text--primary font-serif font-weight-medium mb-4">
-              {{ t(`${project?.name}`) ?? project?.name }}
+              {{ project?.name }}
             </p>
           </v-card-text>
           <v-card-actions class="mx-2">
@@ -167,3 +172,9 @@ watch(
   { immediate: true },
 );
 </script>
+
+<style scoped>
+.text-mono {
+  font-family: monospace;
+}
+</style>
