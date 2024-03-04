@@ -8,7 +8,7 @@
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "@mdi/font": "7.0.96",
+    "@mdi/js": "^7.4.47",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.7",
     "core-js": "^3.34.0",
@@ -39,7 +39,6 @@
     "unplugin-auto-import": "^0.17.5",
     "unplugin-fonts": "^1.1.0",
     "unplugin-vue-components": "^0.26.0",
-    "unplugin-vue-router": "^0.8.4",
     "vite": "^5.0.0",
     "vite-plugin-vue-layouts": "^0.11.0",
     "vite-plugin-vuetify": "^2.0.0",

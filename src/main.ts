@@ -19,6 +19,7 @@ import { createApp } from "vue";
 import { useLocaleStore } from "@/store/locale";
 import { useThemeStore } from "@/store/theme";
 import { useUserStore } from "./store/user";
+import { useAppStore } from "./store/app";
 
 const locale = useLocaleStore(pinia);
 const theme = useThemeStore(pinia);
@@ -56,6 +57,16 @@ user.check();
 const app = createApp(App);
 
 registerPlugins(app);
+
+router.beforeEach((to) => {
+  const user = useUserStore();
+  const { snackbar } = useAppStore();
+  
+  if (to.meta.requiresAuth && !user.id) {
+    snackbar(i18n.global.t("notLoggedIn"), { color: "error" });
+    return false;
+  }
+});
 
 router.onError((err, to) => {
   if (err?.message?.includes?.("Failed to fetch dynamically imported module")) {

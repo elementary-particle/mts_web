@@ -14,6 +14,7 @@ declare module 'vue' {
     LangMenu: typeof import('./src/components/LangMenu.vue')['default']
     ListScroll: typeof import('./src/components/ListScroll.vue')['default']
     LoadingOverlay: typeof import('./src/components/LoadingOverlay.vue')['default']
+    NotFound: typeof import('./src/components/NotFound.vue')['default']
     Project: typeof import('./src/components/Project.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

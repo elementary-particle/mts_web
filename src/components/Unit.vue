@@ -1,157 +1,65 @@
 <template>
   <loading-overlay v-model="loading" />
-  <v-navigation-drawer v-model="drawer" location="right" width="400">
-    <v-card class="mx-auto pb-2" variant="tonal" color="primary" rounded="0">
-      <v-card-text>
-        <p class="font-serif text-disabled">
-          {{ unit?.id ?? "[unit.id]" }}
-        </p>
-        <p class="text-h4 text--primary font-serif font-weight-medium mb-4">
-          {{ unit?.title ?? "[ unit.title ]" }}
-        </p>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn variant="outlined" color="warning">{{ t("lock") }}</v-btn>
-        <v-btn variant="outlined" color="success">{{ t("submit") }}</v-btn>
-        <commit-log :id="props.id"></commit-log>
-      </v-card-actions>
-    </v-card>
+  <v-app-bar density="compact">
+    <v-btn icon @click="$router.back()"><v-icon :icon="mdiArrowLeft" /></v-btn>
+    <v-breadcrumbs :items="[unit?.title ?? '[[ unit.title ]]']"></v-breadcrumbs>
 
-    <v-card class="mx-auto mt-1 font-serif" variant="flat" rounded="0">
-      <v-card-item>
-        <v-card-title class="font-weight-medium">{{
-          t("issues")
-        }}</v-card-title>
-      </v-card-item>
-      <v-divider />
-      <v-list item-props lines="two" height="300" style="overflow-y: auto">
-        <v-list-item
-          title="[[ issue.title ]]"
-          subtitle="[[ issue.id ]]"
-          v-ripple
-        >
-          <template v-slot:prepend>
-            <v-avatar color="success">
-              <v-icon color="white">mdi-clipboard-text</v-icon>
-            </v-avatar>
-          </template>
-        </v-list-item>
-        <v-list-item
-          title="[[ issue.title ]]"
-          subtitle="[[ issue.id ]]"
-          v-ripple
-        >
-          <template v-slot:prepend>
-            <v-avatar color="warning">
-              <v-icon color="white">mdi-clipboard-text</v-icon>
-            </v-avatar>
-          </template>
-        </v-list-item>
-        <v-list-item
-          title="[[ issue.title ]]"
-          subtitle="[[ issue.id ]]"
-          v-ripple
-        >
-          <template v-slot:prepend>
-            <v-avatar color="red">
-              <v-icon color="white">mdi-clipboard-text</v-icon>
-            </v-avatar>
-          </template>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <v-spacer></v-spacer>
 
-    <v-footer class="footer font-serif">
-      <v-row justify="space-around" no-gutters class="my-2">
-        <lang-menu></lang-menu>
-        <theme-button></theme-button>
-      </v-row>
-    </v-footer>
-  </v-navigation-drawer>
+    <lang-menu></lang-menu>
+    <theme-button></theme-button>
+
+    <v-btn icon :active="drawer" @click="drawer = !drawer">
+      <v-icon :icon="mdiDockRight" />
+    </v-btn>
+  </v-app-bar>
 
   <v-sheet class="h-100 d-flex flex-column">
-    <v-toolbar>
-      <v-text-field
-        hide-details
-        prepend-icon="mdi-magnify"
-        single-line
-        variant="outlined"
-        rounded="0"
-        density="compact"
-        class="ml-4 font-serif"
-      ></v-text-field>
+    <v-navigation-drawer rail permanent>
+      <div class="d-flex flex-column align-center">
+        <v-dialog max-width="800" class="font-serif">
+          <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props" variant="text">
+              <v-icon :icon="mdiHistory" />
+            </v-btn>
+          </template>
 
-      <v-spacer />
+          <template v-slot:default="{ isActive }">
+            <commit-log v-if="unit" :id="unit.id" :is-active="isActive.value" />
+            <div v-if="!unit"></div>
+          </template>
+        </v-dialog>
 
-      <v-file-input
-        density="compact"
-        variant="outlined"
-        :label="t('uploadFile')"
-        accept=".xlsx"
-        class="pt-5 font-serif"
-        rounded="0"
-        show-size
-        v-model="uploadFile"
-      ></v-file-input>
+        <v-btn
+          icon
+          @click="commit"
+          :disabled="!user.id"
+          :title="t('submit')"
+          variant="text"
+        >
+          <v-icon :icon="mdiCloudUpload" />
+        </v-btn>
 
-      <v-btn
-        icon
-        @click="upload"
-        :disabled="uploadFile.length == 0"
-        :title="t('uploadFile')"
-      >
-        <v-icon>mdi-upload</v-icon>
-      </v-btn>
+        <v-btn icon variant="text"><v-icon :icon="mdiLock" /></v-btn>
 
-      <v-btn icon @click="download" :title="t('downloadFile')">
-        <v-icon>mdi-download</v-icon>
-      </v-btn>
+        <v-divider />
 
-      <v-btn
-        icon
-        @click="select(pairs.length > 0 ? pairs[0] : null)"
-        :disabled="!selected || selected?.index == 0"
-        :title="t('firstRecord')"
-      >
-        <v-icon>mdi-page-first</v-icon>
-      </v-btn>
+        <v-btn
+          icon
+          @click="upload"
+          :disabled="uploadFile.length == 0"
+          :title="t('uploadFile')"
+          variant="text"
+        >
+          <v-icon :icon="mdiUpload" />
+        </v-btn>
 
-      <v-btn
-        icon
-        @click="selectPrev"
-        :disabled="!selected || selected?.index == 0"
-        :title="t('prevRecord')"
-      >
-        <v-icon>mdi-chevron-left</v-icon>
-      </v-btn>
+        <v-btn icon @click="download" :title="t('downloadFile')" variant="text">
+          <v-icon :icon="mdiDownload" />
+        </v-btn>
+      </div>
+    </v-navigation-drawer>
 
-      <v-btn
-        icon
-        @click="selectNext"
-        :disabled="!selected || selected?.index == pairs.length - 1"
-        :title="t('nextRecord')"
-      >
-        <v-icon>mdi-chevron-right</v-icon>
-      </v-btn>
-
-      <v-btn
-        icon
-        @click="select(pairs[pairs.length - 1])"
-        :disabled="!selected || selected?.index == pairs.length - 1"
-        :title="t('lastRecord')"
-      >
-        <v-icon>mdi-page-last</v-icon>
-      </v-btn>
-
-      <v-btn icon @click="commit" :disabled="!user.id" :title="'Submit'">
-        <v-icon>mdi-cloud-upload</v-icon>
-      </v-btn>
-
-      <v-btn icon @click="drawer = !drawer">
-        <v-icon v-if="!drawer">mdi-cog</v-icon>
-        <v-icon v-if="drawer">mdi-chevron-double-right</v-icon>
-      </v-btn>
-    </v-toolbar>
     <v-progress-linear
       :model-value="
         ((selected ? selected.index : 0) / (pairs.length - 1)) * 100
@@ -160,7 +68,54 @@
 
     <v-container class="fill-height py-0 overflow-hidden d-flex" fluid>
       <v-row class="fill-height">
-        <v-col cols="8" class="fill-height">
+        <v-col class="fill-height">
+          <v-toolbar density="compact" rounded>
+            <v-text-field
+              hide-details
+              :prepend-icon="mdiMagnify"
+              single-line
+              variant="outlined"
+              density="compact"
+              class="ml-4 font-serif"
+            ></v-text-field>
+
+            <v-btn
+              icon
+              @click="select(pairs.length > 0 ? pairs[0] : null)"
+              :disabled="!selected || selected?.index == 0"
+              :title="t('firstRecord')"
+            >
+              <v-icon :icon="mdiPageFirst" />
+            </v-btn>
+
+            <v-btn
+              icon
+              @click="selectPrev"
+              :disabled="!selected || selected?.index == 0"
+              :title="t('prevRecord')"
+            >
+              <v-icon :icon="mdiChevronLeft" />
+            </v-btn>
+
+            <v-btn
+              icon
+              @click="selectNext"
+              :disabled="!selected || selected?.index == pairs.length - 1"
+              :title="t('nextRecord')"
+            >
+              <v-icon :icon="mdiChevronRight" />
+            </v-btn>
+
+            <v-btn
+              icon
+              @click="select(pairs[pairs.length - 1])"
+              :disabled="!selected || selected?.index == pairs.length - 1"
+              :title="t('lastRecord')"
+            >
+              <v-icon :icon="mdiPageLast" />
+            </v-btn>
+          </v-toolbar>
+
           <v-sheet
             class="text-view h-100 d-flex flex-column"
             @wheel="
@@ -194,9 +149,23 @@
             </list-scroll>
           </v-sheet>
         </v-col>
-        <v-col cols="4" class="pt-4">
+
+        <v-divider vertical />
+
+        <v-col cols="3" class="pt-4">
+          <v-file-input
+            density="compact"
+            variant="outlined"
+            :label="t('uploadFile')"
+            accept=".xlsx"
+            class="font-serif"
+            rounded="0"
+            show-size
+            v-model="uploadFile"
+          ></v-file-input>
+
           <v-row>
-            <v-col cols="3">
+            <v-col cols="5">
               <v-text-field
                 variant="outlined"
                 color="primary"
@@ -206,7 +175,7 @@
                 :model-value="selected?.sq"
               ></v-text-field>
             </v-col>
-            <v-col cols="9">
+            <v-col cols="7">
               <v-text-field
                 variant="outlined"
                 color="primary"
@@ -248,6 +217,42 @@
             @keydown.enter.prevent="selectNext"
           ></v-textarea>
         </v-col>
+
+        <v-divider vertical />
+
+        <v-col cols="3" class="fill-height" v-show="drawer">
+          <v-card
+            class="fill-height mx-auto d-flex flex-column font-serif"
+            variant="outlined"
+          >
+            <v-card-item>
+              <v-card-title class="font-weight-medium">{{
+                t("issues")
+              }}</v-card-title>
+            </v-card-item>
+
+            <v-divider />
+
+            <v-list item-props lines="two" class="overflow-y-auto">
+              <template
+                v-for="issue in Array.from({ length: 20 }, () => [
+                  {
+                    id: '[[ issue.id ]]',
+                    title: '[[ issue.title ]]',
+                  },
+                ]).flat()"
+              >
+                <v-list-item :title="issue.title" :subtitle="issue.id" v-ripple>
+                  <template v-slot:prepend>
+                    <v-avatar color="warning">
+                      <v-icon color="white " :icon="mdiClipboardText" />
+                    </v-avatar>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-list>
+          </v-card>
+        </v-col>
       </v-row>
     </v-container>
   </v-sheet>
@@ -263,6 +268,21 @@ import moeApi from "@/domain/services/moe";
 import { TextPair, TextRecord, Unit, makeTextPair } from "@/domain/models/moe";
 import { useAppStore } from "@/store/app";
 import { useUserStore } from "@/store/user";
+import {
+  mdiArrowLeft,
+  mdiChevronLeft,
+  mdiChevronRight,
+  mdiClipboardText,
+  mdiCloudUpload,
+  mdiDockRight,
+  mdiDownload,
+  mdiHistory,
+  mdiLock,
+  mdiMagnify,
+  mdiPageFirst,
+  mdiPageLast,
+  mdiUpload,
+} from "@mdi/js";
 
 class PairItem {
   context: string;
@@ -294,7 +314,7 @@ const uploadFile = ref<File[]>([]);
 
 const loading = ref(true);
 const selected = ref<PairItem | null>(null);
-const drawer = ref(false);
+const drawer = ref(true);
 
 const view = ref<any>(null);
 

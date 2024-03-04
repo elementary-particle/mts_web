@@ -1,13 +1,16 @@
 /**
  * router/index.ts
- *
- * Automatic routes for `./src/pages/*.vue`
  */
 
 // Composables
-import { createRouter, createWebHistory } from "vue-router/auto";
+import { createRouter, createWebHistory } from "vue-router";
 import { setupLayouts } from "virtual:generated-layouts";
-import type { RouteRecordRaw } from "vue-router/auto";
+import type { RouteRecordRaw } from "vue-router";
+
+import Home from "@/components/Home.vue";
+import Project from "@/components/Project.vue";
+import Unit from "@/components/Unit.vue";
+import NotFound from "@/components/NotFound.vue";
 
 function recursiveLayouts(route: RouteRecordRaw): RouteRecordRaw {
   if (route.children) {
@@ -23,9 +26,34 @@ function recursiveLayouts(route: RouteRecordRaw): RouteRecordRaw {
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  extendRoutes(routes) {
-    return routes.map(recursiveLayouts);
-  },
+  routes: [
+    {
+      path: "/",
+      component: Home,
+    },
+    {
+      path: "/project/:id",
+      component: Project,
+      props: true,
+    },
+    {
+      path: "/unit/:id",
+      component: Unit,
+      props: true,
+      meta: {
+        requiresAuth: true,
+        layout: "window",
+      },
+    },
+    {
+      path: "/:pathMatch(.*)*",
+      component: NotFound,
+      meta: {
+        layout: "window",
+      },
+    },
+  ].map(recursiveLayouts),
+  strict: true,
 });
 
 export default router;

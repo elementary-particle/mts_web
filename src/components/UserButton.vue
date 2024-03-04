@@ -26,8 +26,9 @@
       }
     "
     v-if="!user.id"
-    ><v-icon>mdi-account</v-icon></v-btn
   >
+    <v-icon :icon="mdiAccount" />
+  </v-btn>
   <v-menu min-width="200px" rounded v-if="user.id">
     <template v-slot:activator="{ props }">
       <v-btn icon v-bind="props">
@@ -80,6 +81,7 @@ import { useI18n } from "vue-i18n";
 import { useUserStore } from "@/store/user";
 import moeApi from "@/domain/services/moe";
 import { watchEffect } from "vue";
+import { mdiAccount } from "@mdi/js";
 
 const user = useUserStore();
 

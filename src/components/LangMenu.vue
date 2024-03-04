@@ -2,7 +2,7 @@
   <v-menu location="top">
     <template v-slot:activator="{ props }">
       <v-btn icon v-bind="props">
-        <v-icon>mdi-translate</v-icon>
+        <v-icon :icon="mdiTranslate" />
       </v-btn>
     </template>
 
@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { useLocaleStore } from "@/store/locale";
+import { mdiTranslate } from "@mdi/js";
 
 const lang = useLocaleStore();
 const { t, availableLocales } = useI18n({

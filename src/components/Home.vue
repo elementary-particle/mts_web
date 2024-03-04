@@ -23,19 +23,12 @@
               class="project-in-list"
               color="secondary"
               variant="tonal"
+              @click="$router.push(`/project/${project.id}`)"
             >
               <v-card-item>
                 <v-card-title>{{ project.name }}</v-card-title>
                 <v-card-subtitle>{{ project.id }}</v-card-subtitle>
               </v-card-item>
-              <v-card-text> Sample Text in Project </v-card-text>
-              <v-card-actions>
-                <v-btn
-                  @click="$router.push(`/project/${project.id}`)"
-                  variant="outlined"
-                  >{{ t("details") }}</v-btn
-                >
-              </v-card-actions>
             </v-card>
           </v-window-item>
         </v-window>

@@ -59,7 +59,13 @@ const observer = new IntersectionObserver(
       if (flag) {
         observer.unobserve(tag.value);
         observing.value = false;
-        length.value = length.value * 2;
+        if (
+          start.value + length.value < props.items.length &&
+          length.value < 0x40
+        ) {
+          // only extend the list when more lines can be seen.
+          length.value = length.value * 2;
+        }
       }
     }
   },

@@ -16,19 +16,9 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": [
-      "node",
-      "unplugin-vue-router/client",
-      "vite-plugin-vue-layouts/client"
-    ]
+    "types": ["node", "vite-plugin-vue-layouts/client"]
   },
-  "include": [
-    "typed-router.d.ts",
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "references": [{ "path": "./tsconfig.node.json" }],
   "exclude": ["node_modules"]
 }
