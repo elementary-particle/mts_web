@@ -19,7 +19,7 @@
       <div class="d-flex flex-column align-center">
         <v-dialog max-width="800" class="font-serif">
           <template v-slot:activator="{ props }">
-            <v-btn icon v-bind="props" variant="text">
+            <v-btn icon variant="text" v-bind="props" :title="t('commitLog')">
               <v-icon :icon="mdiHistory" />
             </v-btn>
           </template>
@@ -32,27 +32,23 @@
 
         <v-btn
           icon
+          variant="text"
           @click="commit"
           :disabled="!user.id"
           :title="t('submit')"
-          variant="text"
         >
           <v-icon :icon="mdiCloudUpload" />
         </v-btn>
 
-        <v-btn icon variant="text"><v-icon :icon="mdiLock" /></v-btn>
+        <v-btn icon variant="text" :title="t('lock')">
+          <v-icon :icon="mdiLock" />
+        </v-btn>
 
         <v-divider />
 
         <v-menu min-width="200" location="end">
           <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              icon
-              @click="upload"
-              :title="t('uploadFile')"
-              variant="text"
-            >
+            <v-btn v-bind="props" icon :title="t('uploadFile')" variant="text">
               <v-icon :icon="mdiUpload" />
             </v-btn>
           </template>
@@ -67,6 +63,10 @@
               show-size
               v-model="uploadFile"
             ></v-file-input>
+
+            <v-card-actions>
+              <v-btn @click="upload">{{ t("upload") }}</v-btn>
+            </v-card-actions>
           </v-card>
         </v-menu>
 
@@ -434,13 +434,15 @@ const upload = () => {
               ({ sq, source, target }, index) =>
                 new PairItem(sq, source, target, index),
             );
+
+          app.snackbar(t("uploadOk"), { color: "success" });
         }
       }
     };
     reader.readAsArrayBuffer(uploadFile.value[0]);
-
-    app.snackbar(t("uploadOk"), { color: "success" });
     uploadFile.value.length = 0;
+  } else {
+    app.snackbar(t("noFileUploaded"), { color: "warning" });
   }
 };
 
@@ -455,10 +457,13 @@ const { t } = useI18n({
       source: "Source",
       record: "Translated",
       issues: "Issues",
+      commitLog: "Commit Log",
       lock: "Lock",
       submit: "Submit",
+      upload: "Upload",
       uploadFile: "Upload File",
       downloadFile: "Download File",
+      noFileUploaded: "No file selected",
       uploadOk: "Uploaded file has been imported",
       submitOk: "Changes have been submitted to the server",
       firstRecord: "Goto First Record",
@@ -472,10 +477,13 @@ const { t } = useI18n({
       source: "原文",
       record: "译文",
       issues: "问题",
+      commitLog: "提交记录",
       lock: "锁定",
       submit: "提交",
+      upload: "上传",
       uploadFile: "上传文件",
       downloadFile: "下载文件",
+      noFileUploaded: "未选择文件",
       uploadOk: "成功导入上传的文件",
       submitOk: "修改已上传到服务器",
       firstRecord: "第一条",
