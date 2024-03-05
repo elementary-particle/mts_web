@@ -37,10 +37,10 @@
       <v-col cols="4">
         <v-card class="mx-auto pb-2" variant="tonal" color="primary">
           <v-card-text>
-            <p class="font-serif text-disabled">
+            <p class="font-mono text-disabled">
               {{ project?.id ?? "[ project.id ]" }}
             </p>
-            <p class="text-h4 text--primary font-serif font-weight-medium mb-4">
+            <p class="text-h4 text--primary font-mono font-weight-medium mb-4">
               {{ project?.name }}
             </p>
           </v-card-text>
