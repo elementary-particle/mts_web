@@ -16,16 +16,14 @@ export const useUserStore = defineStore({
     }) as RootState,
   actions: {
     check() {
-      moeApi
-        .checkClaim()
-        .then(({ id, isAdmin }) => {
+      moeApi.checkClaim().then((claim) => {
+        if (claim) {
+          const { id, isAdmin } = claim;
           this.$patch({ id, isAdmin });
-        })
-        .catch((e) => {
-          if (e.response && e.response.status == 403) {
-            this.$patch({ id: null, isAdmin: false });
-          }
-        });
+        } else {
+          this.$patch({ id: null, isAdmin: false });
+        }
+      });
     },
   },
 });

@@ -27,7 +27,7 @@ class MoeApi {
     return this.axios.get("/auth/sign-out").then(() => {});
   }
 
-  checkClaim(): Promise<UserInfo> {
+  checkClaim(): Promise<UserInfo | null> {
     return this.axios.get("/auth/claim").then(({ data }) => data);
   }
 
