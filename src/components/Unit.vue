@@ -240,12 +240,13 @@
 
             <v-list item-props lines="two" class="overflow-y-auto">
               <template
-                v-for="issue in Array.from({ length: 20 }, () => [
+                v-for="(issue, index) in Array.from({ length: 20 }, () => [
                   {
                     id: '[[ issue.id ]]',
                     title: '[[ issue.title ]]',
                   },
                 ]).flat()"
+                :key="index"
               >
                 <v-list-item :title="issue.title" :subtitle="issue.id" v-ripple>
                   <template v-slot:prepend>

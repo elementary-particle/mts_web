@@ -43,8 +43,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useI18n } from "vue-i18n";
-
 import { Project } from "@/domain/models/moe";
 import moeApi from "@/domain/services/moe";
 
@@ -64,17 +62,6 @@ onMounted(() => {
         loading.value = false;
       }, 500);
     });
-});
-
-const { t } = useI18n({
-  messages: {
-    en: {
-      details: "Details",
-    },
-    zhHans: {
-      details: "详细",
-    },
-  },
 });
 </script>
 
